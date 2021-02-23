@@ -1,0 +1,5 @@
+schematic/fp-info-cache
+schematic/keychordz-cache.lib
+schematic/keychordz.sch-bak
+ESP32/.vscode/
+ESP32/build/
