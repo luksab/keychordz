@@ -3,13 +3,10 @@
    distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR  
    CONDITIONS OF ANY KIND, either express or implied.
 */
-
 #include "ble_import.c"
-
 
 #define LEFT_KEY 18
 #define RIGHT_KEY 15
-
 
 void hid_demo_task(void *pvParameters)
 {
@@ -60,6 +57,83 @@ void setupGpio()
     gpio_set_direction(LEFT_KEY, GPIO_MODE_INPUT);
     gpio_pullup_en(RIGHT_KEY);
     gpio_pullup_en(LEFT_KEY);
+}
+
+#include <u8g2.h>
+#include <u8g2_esp32_hal.h>
+
+// CLK - GPIO14
+#define PIN_CLK 14
+
+// MOSI - GPIO 13
+#define PIN_MOSI 13
+
+// RESET - GPIO 26
+#define PIN_RESET 27
+
+// DC - GPIO 27
+#define PIN_DC 26
+
+// CS - GPIO 15
+#define PIN_CS 25
+static char tag[] = "test_SSD1306";
+
+void task_test_SSD1306()
+{
+    ESP_LOGI(tag, "Starting test");
+    u8g2_esp32_hal_t u8g2_esp32_hal = U8G2_ESP32_HAL_DEFAULT;
+    // u8g2_esp32_hal.clk = PIN_CLK;
+    // u8g2_esp32_hal.mosi = PIN_MOSI;
+    // u8g2_esp32_hal.cs = PIN_CS;
+    // u8g2_esp32_hal.dc = PIN_DC;
+    // u8g2_esp32_hal.reset = PIN_RESET;
+    u8g2_esp32_hal.sda = PIN_CLK;
+    u8g2_esp32_hal.scl = PIN_MOSI;
+    
+    u8g2_esp32_hal_init(u8g2_esp32_hal);
+
+    u8g2_t u8g2; // a structure which will contain all the data for one display
+    // u8g2_Setup_ssd1306_128x64_noname_f(
+    //     &u8g2,
+    //     U8G2_R0,
+    //     u8g2_esp32_spi_byte_cb,
+    //     u8g2_esp32_gpio_and_delay_cb); // init u8g2 structure
+
+    u8g2_Setup_sh1106_128x64_noname_2(
+        &u8g2,
+        U8G2_R1,
+        u8g2_esp32_i2c_byte_cb,
+        u8g2_esp32_gpio_and_delay_cb); // init u8g2 structure
+
+    u8g2_InitDisplay(&u8g2); // send init sequence to the display, display is in sleep mode after this,
+
+    u8g2_SetPowerSave(&u8g2, 0); // wake up display
+    vTaskDelay(10);
+    u8g2_ClearBuffer(&u8g2);
+    //u8g2_DrawBox(&u8g2, 10,20, 20, 30);
+    u8g2_SetFont(&u8g2, u8g2_font_ncenB14_tr);
+    u8g2_DrawStr(&u8g2, 1, 30, "Hello World!");
+    u8g2_SendBuffer(&u8g2);
+    vTaskDelay(100);
+
+    ESP_LOGI(tag, "All done!");
+
+    uint counter = 0;
+    while (0)
+    {
+        //u8g2_SetPowerSave(&u8g2, 0); // wake up display
+        u8g2_ClearBuffer(&u8g2);
+        //u8g2_DrawBox(&u8g2, 10,20, 20, 30);
+        //u8g2_SetFont(&u8g2, u8g2_font_ncenB14_tr);
+        char text[32];
+        sprintf(text, "%d", counter++);
+        u8g2_DrawStr(&u8g2, 1, 15, text);
+        u8g2_SendBuffer(&u8g2);
+        // if (!(counter % 100))
+            vTaskDelay(100);
+    }
+
+    vTaskDelete(NULL);
 }
 
 void app_main(void)
@@ -133,5 +207,8 @@ void app_main(void)
 
     setupGpio();
 
-    xTaskCreate(&hid_demo_task, "hid_task", 2048, NULL, 5, NULL);
+    //xTaskCreate(&hid_demo_task, "hid_task", 2048, NULL, 5, NULL);
+
+    //xTaskCreate(&task_test_SSD1306, "spi_task", 2048, NULL, 5, NULL);
+    task_test_SSD1306();
 }

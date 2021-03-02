@@ -5,6 +5,8 @@
 
 PROJECT_NAME := hidd_demos
 
+EXTRA_COMPONENT_DIRS =  $(IDF_PATH)/components
+
 COMPONENT_ADD_INCLUDEDIRS := components/include	\
 								
 
