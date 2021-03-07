@@ -387,10 +387,10 @@
   },
   "pcbnew": {
     "last_paths": {
-      "gencad": "",
+      "gencad": "nRF52840Breakout.cad",
       "idf": "",
       "netlist": "",
-      "specctra_dsn": "",
+      "specctra_dsn": "../nRF52840BreakoutOld/nRF52840Breakout.dsn",
       "step": "",
       "vrml": ""
     },
