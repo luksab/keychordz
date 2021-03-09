@@ -2,7 +2,7 @@
 <export version="E">
   <design>
     <source>/home/lukas/Dokumente/keychordz/nRF52840Breakout/nRF52840Breakout.kicad_sch</source>
-    <date>Sa 06 Mär 2021 20:00:36 CET</date>
+    <date>Di 09 Mär 2021 19:13:43 CET</date>
     <tool>Eeschema (5.99.0-9634-gb691c18bfc)</tool>
     <sheet number="1" name="/" tstamps="/">
       <title_block>
@@ -604,7 +604,7 @@
       <uri>/usr/share/kicad/library/Device.lib</uri>
     </library>
     <library logical="MCU_Nordic">
-      <uri>/usr/share/kicad/library/MCU_Nordic.lib</uri>
+      <uri>/usr/share/kicad/library/MCU_Nordic.kicad_sym</uri>
     </library>
     <library logical="Switch">
       <uri>/usr/share/kicad/library/Switch.lib</uri>
