@@ -33,9 +33,9 @@
         "other_text_thickness": 0.15,
         "other_text_upright": false,
         "pads": {
-          "drill": 0.8,
-          "height": 1.6,
-          "width": 1.6
+          "drill": 0.3,
+          "height": 0.5,
+          "width": 0.9
         },
         "silk_line_width": 0.15239999999999998,
         "silk_text_italic": false,
@@ -405,6 +405,7 @@
       "default_text_size": 50.0,
       "default_wire_thickness": 6.0,
       "field_names": [],
+      "intersheets_ref_own_page": false,
       "intersheets_ref_prefix": "",
       "intersheets_ref_short": false,
       "intersheets_ref_show": false,
@@ -428,7 +429,7 @@
   },
   "sheets": [
     [
-      "3e529245-a9a2-4b79-9809-3a30f0eef58b",
+      "f72bd139-84f0-4f7d-80ae-265040a69618",
       ""
     ]
   ],
