@@ -2485,10 +2485,10 @@
     (uuid 82c8cee1-6c02-4917-8571-b62f6110f60d)
   )
 
-  (global_label "2.4V" (shape input) (at 29.972 170.434 0)
+  (global_label "V_BAT" (shape input) (at 29.972 170.434 0)
     (effects (font (size 1.27 1.27)) (justify left))
-    (uuid 05d5c05a-e186-4484-96b8-3026b0f83f22)
-    (property "Intersheet References" "${INTERSHEET_REFS}" (id 0) (at 36.4975 170.5134 0)
+    (uuid 5a4b58b4-2b26-4cad-ace4-2fdccde78a61)
+    (property "Intersheet References" "${INTERSHEET_REFS}" (id 0) (at 37.7675 170.3546 0)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
   )

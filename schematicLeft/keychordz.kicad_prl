@@ -64,7 +64,7 @@
       36
     ],
     "visible_layers": "7ffffff_80000001",
-    "zone_display_mode": 2
+    "zone_display_mode": 0
   },
   "meta": {
     "filename": "keychordz.kicad_prl",
