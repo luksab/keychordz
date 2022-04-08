@@ -1,3 +1,6 @@
 (fp_lib_table
-  (lib (name schematic)(type KiCad)(uri /home/lukas/Dokumente/keychordz/schematic)(options "")(descr ""))
+  (lib (name "schematic")(type "KiCad")(uri "/home/lukas/Dokumente/keychordz/schematic")(options "")(descr ""))
+  (lib (name "symbols")(type "KiCad")(uri "/home/lukas/repos/VictorLamoineSymbols/symbols")(options "")(descr ""))
+  (lib (name "esp32_devkit_v1_doit")(type "KiCad")(uri "/home/lukas/repos/VictorLamoineSymbols/footprints/esp32_devkit_v1_doit.pretty")(options "")(descr ""))
+  (lib (name "promicro")(type "KiCad")(uri "/home/lukas/repos/ProMicroKiCad/promicro.pretty")(options "")(descr ""))
 )
