@@ -3,6 +3,15 @@
 
 #pragma once
 
+#define EE_HANDS
+#define USE_I2C
+#define SPLIT_USB_DETECT
+
+#define MATRIX_ROWS 4
+#define MATRIX_COLS 4
+
+#define DIRECT_PINS { { C6, D4, D7, E6 }, { B3, B2, B1, NO_PIN } }
+
 /*
  * Feature disable options
  *  These options are also useful to firmware size reduction.
