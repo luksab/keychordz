@@ -3,7 +3,8 @@
 
 #pragma once
 
-#define EE_HANDS
+// #define EE_HANDS
+#define SPLIT_HAND_PIN B4
 #define USE_I2C
 #define SPLIT_USB_DETECT
 
