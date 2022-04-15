@@ -4,10 +4,10 @@
     "maintainer": "luksab",
     "bootloader": "atmel-dfu",
     "features": {
-        "bootmagic": true,
+        "bootmagic": false,
         "command": false,
         "console": false,
-        "extrakey": true,
+        "extrakey": false,
         "mousekey": true,
         "nkro": true
     },

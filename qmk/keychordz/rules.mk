@@ -1,3 +1,3 @@
 SPLIT_KEYBOARD = yes
-BOOTLOADER = caterina
-CONSOLE_ENABLE = yes
+COMBO_ENABLE = yes
+LTO_ENABLE = yes

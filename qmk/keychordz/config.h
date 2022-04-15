@@ -13,6 +13,9 @@
 
 #define DIRECT_PINS { { C6, D4, D7, E6 }, { B3, B2, B1, NO_PIN } }
 
+#define COMBO_TERM 1000
+#define COMBO_COUNT 0
+
 /*
  * Feature disable options
  *  These options are also useful to firmware size reduction.
