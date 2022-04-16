@@ -14,6 +14,8 @@ fn file_filter(path: &DirEntry) -> bool {
 fn main() {
     let ascii_nums = Arc::new(Mutex::new([0; 128]));
 
+    let ascii_doubles = Arc::new(Mutex::new([0; 128 * 128]));
+
     let now = Arc::new(RwLock::new(std::time::SystemTime::now()));
     let now_total = std::time::SystemTime::now();
     let num_files = AtomicUsize::new(0);
@@ -34,9 +36,19 @@ fn main() {
         // println!("{}: {}", entry.display(), file_content.len());
         // count ascii chars
         let mut ascii_num = [0; 128];
-        for char in file_content {
-            ascii_num.get_mut(char as usize).map(|c| *c += 1);
+        for char in &file_content {
+            ascii_num.get_mut(*char as usize).map(|c| *c += 1);
             // ascii_nums[char as usize] += 1;
+        }
+
+        let mut ascii_doubles = [0; 128 * 128];
+
+        for chars in file_content.windows(2) {
+            if !(0..128).contains(&chars[0]) || !(0..128).contains(&chars[1]) {
+                // make sure chars are ascii, else continue
+                continue;
+            }
+            ascii_doubles[chars[0] as usize * 128 + chars[1] as usize] += 1;
         }
 
         // std::thread::sleep(std::time::Duration::from_millis(10));
