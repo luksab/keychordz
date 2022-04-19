@@ -1,4 +1,7 @@
-use std::sync::{atomic::AtomicUsize, Arc, Mutex, RwLock};
+use std::{
+    collections::HashMap,
+    sync::{atomic::AtomicUsize, Arc, Mutex, RwLock},
+};
 
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use walkdir::{DirEntry, WalkDir};
@@ -13,6 +16,31 @@ fn file_filter(path: &DirEntry) -> bool {
     file_exts.contains(&file_ext)
 }
 
+fn str_append_ngram(ngrams: &mut HashMap<Vec<u8>, usize>, s: &[u8], n: usize) {
+    for chars in s.windows(n) {
+        let mut all_ascii = true;
+        for chr in chars {
+            all_ascii &= (0..128).contains(chr);
+        }
+        if !all_ascii {
+            // make sure chars are ascii, else continue
+            continue;
+        }
+        // add 1 to element in hashmap
+        match ngrams.get_mut(chars) {
+            Some(count) => *count += 1,
+            None => {
+                let _ = ngrams.insert(chars.to_vec(), 1);
+            }
+        }
+    }
+}
+
+fn str_to_ngram(string: &[u8], n: usize) -> HashMap<Vec<u8>, usize> {
+    let mut ngrams: HashMap<Vec<u8>, usize> = HashMap::new();
+    str_append_ngram(&mut ngrams, string, n);
+    ngrams
+}
 
 #[derive(Debug, StructOpt)]
 struct Opt {
@@ -28,6 +56,10 @@ struct Opt {
     #[structopt(short, long)]
     sort: bool,
 
+    /// the number of ngrams to use
+    #[structopt(short, long, default_value = "2")]
+    n: usize,
+
     /// Set which directory to index
     #[structopt(default_value = ".")]
     directory: String,
@@ -36,9 +68,10 @@ struct Opt {
 fn main() {
     let opt: Opt = Opt::from_args();
 
-    let ascii_nums = Arc::new(Mutex::new([0; 128]));
-
-    let ascii_doubles = Arc::new(Mutex::new([0; 128 * 128]));
+    let mut ascii_nums = vec![];
+    for i in 0..opt.n {
+        ascii_nums.push(HashMap::new());
+    }
 
     let now = Arc::new(RwLock::new(std::time::SystemTime::now()));
     let now_total = std::time::SystemTime::now();
@@ -58,48 +91,16 @@ fn main() {
 
     let now_total = std::time::SystemTime::now();
 
-    glob.par_iter().for_each(|entry| {
+    glob.iter().for_each(|entry| {
         num_files.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
         // read file to u8 otherwise skip
         let file_content = std::fs::read(entry.path()).unwrap_or(vec![]);
         // get file_content length
         // println!("{}: {}", entry.display(), file_content.len());
         // count ascii chars
-        let mut ascii_num = [0; 128];
-        for char in &file_content {
-            ascii_num.get_mut(*char as usize).map(|c| *c += 1);
-            // ascii_nums[char as usize] += 1;
+        for (i, ascii_num) in ascii_nums.iter_mut().enumerate() {
+            str_append_ngram(ascii_num, &file_content, i + 1);
         }
-
-        let mut ascii_double = [0; 128 * 128];
-
-        for chars in file_content.windows(2) {
-            if !(0..128).contains(&chars[0]) || !(0..128).contains(&chars[1]) {
-                // make sure chars are ascii, else continue
-                continue;
-            }
-            ascii_double[chars[0] as usize * 128 + chars[1] as usize] += 1;
-        }
-
-        // std::thread::sleep(std::time::Duration::from_millis(10));
-
-        ascii_nums
-            .lock()
-            .unwrap()
-            .iter_mut()
-            .zip(&ascii_num)
-            .for_each(|(ascii, asciii)| {
-                *ascii += asciii;
-            });
-
-        ascii_doubles
-            .lock()
-            .unwrap()
-            .iter_mut()
-            .zip(&ascii_double)
-            .for_each(|(ascii, asciii)| {
-                *ascii += asciii;
-            });
 
         if now.read().unwrap().elapsed().unwrap().as_secs() > 1 && opt.updates {
             let num_processed = num_files.load(std::sync::atomic::Ordering::Relaxed);
@@ -117,41 +118,36 @@ fn main() {
         }
     });
 
-    if !opt.doubles {
-        // print ascii chars
-        let mut sum = 0;
-        let mut ascii_lut = vec![];
-        for (i, num) in ascii_nums.lock().unwrap().iter().enumerate() {
-            if *num > 0 && (32..127).contains(&i) {
-                ascii_lut.push((i as u8 as char, *num));
-                sum += *num;
-            }
-        }
-        if opt.sort {
-            ascii_lut.sort_by(|a, b| b.1.cmp(&a.1));
-        }
-
-        for (char, num) in ascii_lut {
-            println!("{} {}", char, num);
-        }
-
-        eprintln!("{} total ascii chars", sum);
-    }
-
-    if opt.doubles {
+    let mut ascii_double_luts = vec![];
+    for ascii_num in ascii_nums.iter() {
         let mut ascii_double_lut = vec![];
-        for (i, num) in ascii_doubles.lock().unwrap().iter().enumerate() {
-            let i1 = i / 128;
-            let i2 = i % 128;
-            if *num > 0 && (32..127).contains(&i1) && (32..127).contains(&i2) {
-                ascii_double_lut.push(((i1 as u8 as char, i2 as u8 as char), *num));
+        for (str, num) in ascii_num.into_iter() {
+            // for chr in str {
+            //     (32..127).contains(chr);
+            // }
+            if num > &0 && str.iter().all(|chr| (32..127).contains(chr)) {
+                ascii_double_lut.push((str, num));
             }
         }
         ascii_double_lut.sort_by_key(|(_, num)| *num);
-        // ascii_double_lut.reverse();
+        ascii_double_luts.push(ascii_double_lut);
+    }
+    for (i, ascii_double_lut) in ascii_double_luts.iter_mut().enumerate() {
+        ascii_double_lut.reverse();
+        let mut output = String::new();
         for (chars, num) in ascii_double_lut {
-            println!("{}{}: {}", chars.0, chars.1, num);
+            // println!(
+            //     "{}: {}",
+            //     chars.iter().map(|chr| *chr as char).collect::<String>(),
+            //     num
+            // );
+            output.push_str(&format!(
+                "{}: {}\n",
+                chars.iter().map(|chr| *chr as char).collect::<String>(),
+                num
+            ));
         }
+        std::fs::write(format!("stats_{}.txt", i + 1), output).unwrap();
     }
 
     eprintln!(
