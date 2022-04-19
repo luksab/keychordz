@@ -1,9 +1,9 @@
 use std::{
     collections::HashMap,
-    sync::{atomic::AtomicUsize, Arc, Mutex, RwLock},
+    sync::{atomic::AtomicUsize, Arc, RwLock},
 };
 
-use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
+use rayon::prelude::*;
 use walkdir::{DirEntry, WalkDir};
 
 use structopt::StructOpt;
@@ -51,12 +51,6 @@ fn str_append_ngram(ngrams: &mut HashMap<Vec<u8>, usize>, s: &[u8], n: usize) {
             }
         }
     }
-}
-
-fn str_to_ngram(string: &[u8], n: usize) -> HashMap<Vec<u8>, usize> {
-    let mut ngrams: HashMap<Vec<u8>, usize> = HashMap::new();
-    str_append_ngram(&mut ngrams, string, n);
-    ngrams
 }
 
 #[derive(Debug, StructOpt)]
@@ -124,12 +118,10 @@ fn main() {
         num_files.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
         // read file to u8 otherwise skip
         let file_content = std::fs::read(entry.path()).unwrap_or(vec![]);
-        // get file_content length
-        // println!("{}: {}", entry.display(), file_content.len());
         // count ascii chars
-        for (i, ascii_num) in ascii_nums.iter_mut().enumerate() {
+        ascii_nums.par_iter_mut().enumerate().for_each(|(i, ascii_num)| {
             str_append_ngram(ascii_num, &file_content, i + 1);
-        }
+        });
 
         if now.read().unwrap().elapsed().unwrap().as_secs() > 1 && opt.updates {
             let num_processed = num_files.load(std::sync::atomic::Ordering::Relaxed);
