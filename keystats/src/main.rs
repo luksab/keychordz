@@ -8,12 +8,29 @@ use walkdir::{DirEntry, WalkDir};
 
 use structopt::StructOpt;
 
+fn filter_by_extension(extensions: &[&str], entry: &DirEntry) -> bool {
+    extensions.iter().any(|ext| {
+        entry
+            .path()
+            .extension()
+            .map_or(false, |e| e.to_str() == Some(ext))
+    })
+}
+
+fn filter_by_not_target(entry: &DirEntry) -> bool {
+    !entry
+        .path()
+        .as_os_str()
+        .to_str()
+        .map_or(false, |s| s.contains("/target/"))
+}
+
 fn file_filter(path: &DirEntry) -> bool {
-    // println!("{:?}", path);
-    let file_exts = vec!["rs", "py", "txt", "md"];
-    let file_name = path.file_name().to_str().unwrap();
-    let file_ext = file_name.split(".").last().unwrap();
-    file_exts.contains(&file_ext)
+    let file_exts = vec![
+        "rs", "toml", "wgsl", "py", "js", "md", "c", "cpp", "h", "hpp", "html", "css", "sh",
+        "java", "go", "ts", "yml", "yaml", "json",
+    ];
+    filter_by_extension(&file_exts, path) && filter_by_not_target(path)
 }
 
 fn str_append_ngram(ngrams: &mut HashMap<Vec<u8>, usize>, s: &[u8], n: usize) {
@@ -44,43 +61,55 @@ fn str_to_ngram(string: &[u8], n: usize) -> HashMap<Vec<u8>, usize> {
 
 #[derive(Debug, StructOpt)]
 struct Opt {
-    /// whether to provide status updates
+    /// Enable periodic status updates
     #[structopt(short, long)]
     updates: bool,
 
-    /// whether to calculate two-letter word frequencies
-    #[structopt(short, long)]
-    doubles: bool,
+    /// Disable sorting by frequency before printing
+    #[structopt(short = "s", long)]
+    disable_sort: bool,
 
-    /// whether to sort by frequency before printing
+    /// Print files to process
     #[structopt(short, long)]
-    sort: bool,
+    print_files: bool,
 
-    /// the number of ngrams to use
+    /// The number of ngrams to use
     #[structopt(short, long, default_value = "2")]
     n: usize,
 
     /// Set which directory to index
     #[structopt(default_value = ".")]
-    directory: String,
+    directory: Vec<String>,
 }
 
 fn main() {
     let opt: Opt = Opt::from_args();
 
     let mut ascii_nums = vec![];
-    for i in 0..opt.n {
+    for _ in 0..opt.n {
         ascii_nums.push(HashMap::new());
     }
 
     let now = Arc::new(RwLock::new(std::time::SystemTime::now()));
     let now_total = std::time::SystemTime::now();
     let num_files = AtomicUsize::new(0);
-    let glob = WalkDir::new(opt.directory)
-        .into_iter()
-        .filter_map(Result::ok)
-        .filter(file_filter)
+    let glob = opt
+        .directory
+        .iter()
+        .flat_map(|dir| {
+            WalkDir::new(dir)
+                .into_iter()
+                .filter_map(Result::ok)
+                .filter(file_filter)
+        })
         .collect::<Vec<_>>();
+
+    if opt.print_files {
+        println!("processing files:");
+        for file in &glob {
+            println!("{}", file.path().display());
+        }
+    }
 
     let glob_len = glob.len();
     eprintln!(
@@ -122,18 +151,16 @@ fn main() {
     for ascii_num in ascii_nums.iter() {
         let mut ascii_double_lut = vec![];
         for (str, num) in ascii_num.into_iter() {
-            // for chr in str {
-            //     (32..127).contains(chr);
-            // }
             if num > &0 && str.iter().all(|chr| (32..127).contains(chr)) {
                 ascii_double_lut.push((str, num));
             }
         }
-        ascii_double_lut.sort_by_key(|(_, num)| *num);
+        if !opt.disable_sort {
+            ascii_double_lut.sort_by(|a, b| b.1.cmp(&a.1));
+        }
         ascii_double_luts.push(ascii_double_lut);
     }
     for (i, ascii_double_lut) in ascii_double_luts.iter_mut().enumerate() {
-        ascii_double_lut.reverse();
         let mut output = String::new();
         for (chars, num) in ascii_double_lut {
             // println!(
@@ -151,7 +178,7 @@ fn main() {
     }
 
     eprintln!(
-        "{} files in {:?}",
+        "Processed {} files in {:?}",
         num_files.load(std::sync::atomic::Ordering::Relaxed),
         now_total.elapsed().unwrap()
     );
