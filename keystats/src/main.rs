@@ -3,6 +3,7 @@ use std::{
     sync::{atomic::AtomicUsize, Arc, RwLock},
 };
 
+use colored::Colorize;
 use rayon::prelude::*;
 use walkdir::{DirEntry, WalkDir};
 
@@ -68,8 +69,20 @@ struct Opt {
     print_files: bool,
 
     /// The number of ngrams to use
-    #[structopt(short, long, default_value = "2")]
-    n: usize,
+    #[structopt(short, long, default_value = "1")]
+    ngrams: usize,
+
+    /// Calculate all n from 1 to ngrams
+    #[structopt(short, long)]
+    multi: bool,
+
+    /// Output to files beginning with
+    #[structopt(short, long)]
+    output: Option<String>,
+
+    /// Print stats
+    #[structopt(short = "t", long)]
+    print_time: bool,
 
     /// Set which directory to index
     #[structopt(default_value = ".")]
@@ -80,7 +93,11 @@ fn main() {
     let opt: Opt = Opt::from_args();
 
     let mut ascii_nums = vec![];
-    for _ in 0..opt.n {
+    if opt.multi {
+        for _ in 0..opt.ngrams {
+            ascii_nums.push(HashMap::new());
+        }
+    } else {
         ascii_nums.push(HashMap::new());
     }
 
@@ -91,6 +108,10 @@ fn main() {
         .directory
         .iter()
         .flat_map(|dir| {
+            if !std::path::Path::new(dir).exists() {
+                let out = format!("Path \"{}\" does not exist!", dir);
+                eprintln!("{}", out.red());
+            }
             WalkDir::new(dir)
                 .into_iter()
                 .filter_map(Result::ok)
@@ -99,18 +120,20 @@ fn main() {
         .collect::<Vec<_>>();
 
     if opt.print_files {
-        println!("processing files:");
+        eprintln!("processing files:");
         for file in &glob {
-            println!("{}", file.path().display());
+            eprintln!("{}", file.path().display());
         }
     }
 
     let glob_len = glob.len();
-    eprintln!(
-        "Indexing {} files took {:?}",
-        glob_len,
-        now_total.elapsed().unwrap()
-    );
+    if opt.print_time {
+        eprintln!(
+            "Indexing {} files took {:?}",
+            glob_len,
+            now_total.elapsed().unwrap()
+        );
+    }
 
     let now_total = std::time::SystemTime::now();
 
@@ -119,9 +142,16 @@ fn main() {
         // read file to u8 otherwise skip
         let file_content = std::fs::read(entry.path()).unwrap_or(vec![]);
         // count ascii chars
-        ascii_nums.par_iter_mut().enumerate().for_each(|(i, ascii_num)| {
-            str_append_ngram(ascii_num, &file_content, i + 1);
-        });
+        if opt.multi {
+            ascii_nums
+                .par_iter_mut()
+                .enumerate()
+                .for_each(|(i, ascii_num)| {
+                    str_append_ngram(ascii_num, &file_content, i + 1);
+                });
+        } else {
+            str_append_ngram(&mut ascii_nums[0], &file_content, opt.ngrams);
+        }
 
         if now.read().unwrap().elapsed().unwrap().as_secs() > 1 && opt.updates {
             let num_processed = num_files.load(std::sync::atomic::Ordering::Relaxed);
@@ -166,12 +196,24 @@ fn main() {
                 num
             ));
         }
-        std::fs::write(format!("stats_{}.txt", i + 1), output).unwrap();
+        match opt.output {
+            Some(ref output_file) => {
+                std::fs::write(format!("{}_{}.txt", output_file, i + 1), output).unwrap();
+            }
+            None => {
+                if opt.multi {
+                    println!("{}gram", i + 1);
+                }
+                print!("{}", output);
+            }
+        }
     }
 
-    eprintln!(
-        "Processed {} files in {:?}",
-        num_files.load(std::sync::atomic::Ordering::Relaxed),
-        now_total.elapsed().unwrap()
-    );
+    if opt.print_time {
+        eprintln!(
+            "Processed {} files in {:?}",
+            num_files.load(std::sync::atomic::Ordering::Relaxed),
+            now_total.elapsed().unwrap()
+        );
+    }
 }
