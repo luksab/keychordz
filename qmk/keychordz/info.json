@@ -14,7 +14,7 @@
     "processor": "atmega32u4",
     "url": "",
     "usb": {
-        "device_version": "1.0.0",
+        "device_version": "1.0.1",
         "pid": "0x3169",
         "vid": "0xFEED"
     },
