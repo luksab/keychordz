@@ -42,7 +42,7 @@
 #define RGB_MATRIX_KEYPRESSES
 
 #define COMBO_TERM 1000
-#define COMBO_COUNT 2
+#define COMBO_COUNT 10
 
 /*
  * Feature disable options

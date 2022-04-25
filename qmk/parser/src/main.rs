@@ -100,12 +100,12 @@ impl FromStr for Config {
                 return Err(format!("Invalid finger on line {}", line_num));
             }
             let key = key.ok_or(format!("Missing Key: line {}", line_num))?;
-            if key.len() != 1 {
-                return Err(format!(
-                    "Key on line {} must be a single character: {}",
-                    line_num, key
-                ));
-            }
+            // if key.len() != 1 {
+            //     return Err(format!(
+            //         "Key on line {} must be a single character: {}",
+            //         line_num, key
+            //     ));
+            // }
             combos.push(Combo {
                 fingers,
                 key: key.to_string(),
@@ -140,6 +140,18 @@ impl Config {
         Ok(())
     }
 
+    fn check_dup_in_combo(&self) -> Result<(), String> {
+        for combo in &self.combos {
+            let mut finger_set = HashSet::new();
+            for finger in &combo.fingers {
+                if !finger_set.insert(finger.clone()) {
+                    return Err(format!("Duplicate finger in combo: {}", combo));
+                }
+            }
+        }
+        Ok(())
+    }
+
     fn check_all_single(&self) -> Result<(), String> {
         match self.get_finger_lookup() {
             Ok(_) => Ok(()),
@@ -149,13 +161,14 @@ impl Config {
 
     fn check(&self) -> Result<(), String> {
         self.check_dup()?;
+        self.check_dup_in_combo()?;
         self.check_all_single()?;
         Ok(())
     }
 }
 
 impl Config {
-    fn get_option_finger_lookup(&self) -> Result<Vec<Option<char>>, String> {
+    fn get_option_finger_lookup(&self) -> Result<Vec<Option<String>>, String> {
         let mut single_key_lookup = Finger::VARIANTS.iter().map(|_| None).collect::<Vec<_>>();
 
         for combo in &self.combos {
@@ -163,8 +176,7 @@ impl Config {
                 continue;
             }
             let finger = combo.fingers[0];
-            let key = combo.key.chars().next().unwrap();
-            match single_key_lookup[finger as usize] {
+            match &single_key_lookup[finger as usize] {
                 Some(other_key) => {
                     return Err(format!(
                         "Finger {} is already mapped to {}",
@@ -172,7 +184,7 @@ impl Config {
                     ));
                 }
                 None => {
-                    single_key_lookup[finger as usize] = Some(key);
+                    single_key_lookup[finger as usize] = Some(combo.key.clone());
                 }
             }
         }
@@ -181,7 +193,7 @@ impl Config {
         Ok(single_key_lookup)
     }
 
-    fn get_finger_lookup(&self) -> Result<Vec<char>, String> {
+    fn get_finger_lookup(&self) -> Result<Vec<String>, String> {
         let mut finger_lookup = self.get_option_finger_lookup()?;
         for (i, key) in finger_lookup.iter_mut().enumerate() {
             if key.is_none() {
@@ -191,7 +203,7 @@ impl Config {
                 ));
             }
         }
-        Ok(finger_lookup.iter().map(|x| x.unwrap()).collect())
+        Ok(finger_lookup.into_iter().map(|x| x.unwrap()).collect())
     }
 
     fn to_keymap(&self) -> Result<String, String> {
@@ -203,17 +215,17 @@ impl Config {
         out += "   ";
         for (i, key) in single_key_lookup.iter().enumerate() {
             if i == 3 {
-                out += &format!("    KC_{},                  ", key);
+                out += &format!("    {},                  ", key);
             } else if i == 7 {
-                out += &format!("    KC_{}, \\\n                            ", key);
+                out += &format!("    {}, \\\n                            ", key);
             } else if i == 10 {
-                out += &format!(" KC_{},           ", key);
+                out += &format!(" {},           ", key);
             } else if i == Finger::COUNT - 1 {
-                out += &format!(" KC_{}", key);
+                out += &format!(" {}", key);
             } else if i > 7 {
-                out += &format!(" KC_{},", key);
+                out += &format!(" {},", key);
             } else {
-                out += &format!("    KC_{},", key);
+                out += &format!("    {},", key);
             }
         }
         out += " \\\n       )";
@@ -221,11 +233,11 @@ impl Config {
         Ok(out)
     }
 
-    /// const uint16_t PROGMEM test_combo1[] = {KC_A, KC_S, COMBO_END};
-    /// const uint16_t PROGMEM test_combo2[] = {KC_F, KC_H, COMBO_END};
+    /// const uint16_t PROGMEM test_combo1[] = {A, S, COMBO_END};
+    /// const uint16_t PROGMEM test_combo2[] = {F, H, COMBO_END};
     /// combo_t key_combos[COMBO_COUNT] = {
-    ///     COMBO(test_combo1, KC_ESC),
-    ///     COMBO(test_combo2, LCTL(KC_Y)), // keycodes with modifiers are possible too!
+    ///     COMBO(test_combo1, ESC),
+    ///     COMBO(test_combo2, LCTL(Y)), // keycodes with modifiers are possible too!
     /// };
     fn to_qmk_combos(&self) -> Result<String, String> {
         let single_key_lookup = self.get_finger_lookup()?;
@@ -238,7 +250,7 @@ impl Config {
             let mut out = String::new();
             out += &format!("const uint16_t PROGMEM combo_{}[] = {{", i);
             for finger in &combo.fingers {
-                out += &format!(" KC_{},", single_key_lookup[*finger as usize]);
+                out += &format!(" {},", single_key_lookup[*finger as usize]);
             }
             out += " COMBO_END};\n";
             progmem_out += &out;
@@ -252,7 +264,7 @@ impl Config {
             }
             let mut out = String::new();
             out += &format!("    COMBO(combo_{}, ", i);
-            out += &format!("KC_{}),\n", combo.key);
+            out += &format!("{}),\n", combo.key);
 
             key_combos_out += &out;
         }
@@ -274,7 +286,10 @@ fn main() {
     println!("{}", config);
     match config.check() {
         Ok(_) => println!("Config is valid"),
-        Err(e) => println!("Config is invalid: {}", e),
+        Err(e) => {
+            println!("Config is invalid: {}", e);
+            std::process::exit(1);
+        }
     }
     println!("{}", config.to_keymap().unwrap());
     println!("{}", config.to_qmk_combos().unwrap());

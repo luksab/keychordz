@@ -31,11 +31,28 @@ led_config_t g_led_config = { {
 } };
 
 
-const uint16_t PROGMEM test_combo1[] = {KC_A, KC_S, COMBO_END};
-const uint16_t PROGMEM test_combo2[] = {KC_F, KC_H, COMBO_END};
+const uint16_t PROGMEM combo_14[] = { KC_T, KC_E, COMBO_END};
+const uint16_t PROGMEM combo_15[] = { KC_T, KC_S, COMBO_END};
+const uint16_t PROGMEM combo_16[] = { KC_T, KC_A, COMBO_END};
+const uint16_t PROGMEM combo_17[] = { KC_T, KC_N, COMBO_END};
+const uint16_t PROGMEM combo_18[] = { KC_T, KC_I, COMBO_END};
+const uint16_t PROGMEM combo_19[] = { KC_T, KC_O, COMBO_END};
+const uint16_t PROGMEM combo_20[] = { KC_T, KC_P, COMBO_END};
+const uint16_t PROGMEM combo_21[] = { KC_N, KC_I, KC_O, COMBO_END};
+const uint16_t PROGMEM combo_22[] = { KC_N, KC_I, KC_P, COMBO_END};
+const uint16_t PROGMEM combo_23[] = { KC_N, KC_I, KC_T, COMBO_END};
+
 combo_t key_combos[COMBO_COUNT] = {
-    COMBO(test_combo1, KC_ESC),
-    COMBO(test_combo2, LCTL(KC_Y)), // keycodes with modifiers are possible too!
+    COMBO(combo_14, KC_R),
+    COMBO(combo_15, KC_C),
+    COMBO(combo_16, KC_F),
+    COMBO(combo_17, KC_B),
+    COMBO(combo_18, KC_V),
+    COMBO(combo_19, KC_G),
+    COMBO(combo_20, KC_BSPC),
+    COMBO(combo_21, RGB_TOG),
+    COMBO(combo_22, RGB_MODE_FORWARD),
+    COMBO(combo_23, RGB_VAI),
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -51,9 +68,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       *          └───┘             └───┘   
       */
     [0] = LAYOUT_keychordz(
-        KC_A,    KC_C,    KC_D,    KC_F,                               KC_H,    KC_J,    KC_K,    KC_L,  \
-                       KC_BSPC, RGB_TOG, KC_TAB,           KC_LEFT_SHIFT, RGB_MODE_FORWARD, RGB_VAI  \
-    )
+       KC_A,    KC_S,    KC_E,    KC_T,                      KC_N,    KC_I,    KC_O,    KC_P, \
+                             KC_TAB, KC_SPACE, KC_LEFT_SHIFT,            KC_N, KC_N, KC_N \
+       )
 };
 
 // [L/R] [Pinkie, Ring, Middle, Index, thumbL, thumbU, thumbD]
