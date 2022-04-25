@@ -1,7 +1,7 @@
 use num_enum::{IntoPrimitive, TryFromPrimitive};
 use std::{collections::HashSet, fmt, str::FromStr};
-use strum::VariantNames;
-use strum_macros::{Display, EnumString, EnumVariantNames};
+use strum::{EnumCount, VariantNames};
+use strum_macros::{Display, EnumCount as EnumCountMacro, EnumString, EnumVariantNames};
 
 // [L/R] [Pinkie, Ring, Middle, Index, thumbL, thumbU, thumbD]
 #[derive(
@@ -17,6 +17,7 @@ use strum_macros::{Display, EnumString, EnumVariantNames};
     IntoPrimitive,
     TryFromPrimitive,
     EnumVariantNames,
+    EnumCountMacro,
 )]
 #[repr(u8)]
 enum Finger {
@@ -207,6 +208,8 @@ impl Config {
                 out += &format!("    KC_{}, \\\n                            ", key);
             } else if i == 10 {
                 out += &format!(" KC_{},           ", key);
+            } else if i == Finger::COUNT - 1 {
+                out += &format!(" KC_{}", key);
             } else if i > 7 {
                 out += &format!(" KC_{},", key);
             } else {
@@ -255,7 +258,12 @@ impl Config {
         }
         key_combos_out += "};\n";
 
-        Ok(format!("{}\n\n{}", progmem_out, key_combos_out))
+        Ok(format!(
+            "{}\n\n{}\n\nComboCount = {}",
+            progmem_out,
+            key_combos_out,
+            self.combos.len() - Finger::COUNT,
+        ))
     }
 }
 
