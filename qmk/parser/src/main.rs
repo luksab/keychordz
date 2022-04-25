@@ -75,14 +75,14 @@ impl FromStr for Config {
         let mut line_num = 0;
         while let Some(line) = lines.next() {
             line_num += 1;
-            if line.starts_with('#') {
+            if line.starts_with('#') || line.is_empty() {
                 continue;
             }
             let mut words = line.split_whitespace();
             let mut fingers = Vec::new();
             let mut key = None;
             while let Some(finger) = words.next() {
-                let finger = match Finger::from_str(finger) {
+                let finger = match Finger::from_str(finger.to_uppercase().as_str()) {
                     Ok(f) => f,
                     Err(_) => {
                         // return Err(format!(
@@ -207,7 +207,9 @@ impl Config {
 }
 
 fn main() {
-    let config = Config::from_str(include_str!("../../config.cfg")).unwrap();
+    // read filename from first argument
+    let file_name = std::env::args().nth(1).unwrap();
+    let config = Config::from_str(&std::fs::read_to_string(file_name).unwrap()).unwrap();
     println!("{}", config);
     match config.check() {
         Ok(_) => println!("Config is valid"),
