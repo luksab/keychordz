@@ -24,13 +24,13 @@ enum Finger {
     LR,
     LM,
     LI,
+    RI,
+    RM,
+    RR,
+    RP,
     LU,
     LD,
     LL,
-    RP,
-    RR,
-    RM,
-    RI,
     RU,
     RD,
     RL,
@@ -89,7 +89,7 @@ impl FromStr for Config {
                         //     "Invalid finger name at line {}: {}",
                         //     line_num, finger
                         // ))
-                        key = Some(finger.to_string());
+                        key = Some(finger.to_uppercase());
                         break;
                     }
                 };
@@ -193,16 +193,69 @@ impl Config {
         Ok(finger_lookup.iter().map(|x| x.unwrap()).collect())
     }
 
-    #[allow(non_snake_case)]
-    fn to_keymap(self) -> String {
+    fn to_keymap(&self) -> Result<String, String> {
         let mut out = String::new();
         out += "[0] = LAYOUT_keychordz(\n";
 
-        let single_key_lookup = self.get_finger_lookup();
+        let single_key_lookup = self.get_finger_lookup()?;
 
-        println!("{:?}", single_key_lookup);
+        out += "   ";
+        for (i, key) in single_key_lookup.iter().enumerate() {
+            if i == 3 {
+                out += &format!("    KC_{},                  ", key);
+            } else if i == 7 {
+                out += &format!("    KC_{}, \\\n                            ", key);
+            } else if i == 10 {
+                out += &format!(" KC_{},           ", key);
+            } else if i > 7 {
+                out += &format!(" KC_{},", key);
+            } else {
+                out += &format!("    KC_{},", key);
+            }
+        }
+        out += " \\\n       )";
 
-        out
+        Ok(out)
+    }
+
+    /// const uint16_t PROGMEM test_combo1[] = {KC_A, KC_S, COMBO_END};
+    /// const uint16_t PROGMEM test_combo2[] = {KC_F, KC_H, COMBO_END};
+    /// combo_t key_combos[COMBO_COUNT] = {
+    ///     COMBO(test_combo1, KC_ESC),
+    ///     COMBO(test_combo2, LCTL(KC_Y)), // keycodes with modifiers are possible too!
+    /// };
+    fn to_qmk_combos(&self) -> Result<String, String> {
+        let single_key_lookup = self.get_finger_lookup()?;
+        let mut progmem_out = String::new();
+
+        for (i, combo) in self.combos.iter().enumerate() {
+            if combo.fingers.len() < 2 {
+                continue;
+            }
+            let mut out = String::new();
+            out += &format!("const uint16_t PROGMEM combo_{}[] = {{", i);
+            for finger in &combo.fingers {
+                out += &format!(" KC_{},", single_key_lookup[*finger as usize]);
+            }
+            out += " COMBO_END};\n";
+            progmem_out += &out;
+        }
+
+        let mut key_combos_out = String::new();
+        key_combos_out += "combo_t key_combos[COMBO_COUNT] = {\n";
+        for (i, combo) in self.combos.iter().enumerate() {
+            if combo.fingers.len() < 2 {
+                continue;
+            }
+            let mut out = String::new();
+            out += &format!("    COMBO(combo_{}, ", i);
+            out += &format!("KC_{}),\n", combo.key);
+
+            key_combos_out += &out;
+        }
+        key_combos_out += "};\n";
+
+        Ok(format!("{}\n\n{}", progmem_out, key_combos_out))
     }
 }
 
@@ -215,5 +268,6 @@ fn main() {
         Ok(_) => println!("Config is valid"),
         Err(e) => println!("Config is invalid: {}", e),
     }
-    println!("{}", config.to_keymap());
+    println!("{}", config.to_keymap().unwrap());
+    println!("{}", config.to_qmk_combos().unwrap());
 }
