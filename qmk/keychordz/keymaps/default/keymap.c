@@ -38,9 +38,31 @@ const uint16_t PROGMEM combo_17[] = { KC_T, KC_N, COMBO_END};
 const uint16_t PROGMEM combo_18[] = { KC_T, KC_I, COMBO_END};
 const uint16_t PROGMEM combo_19[] = { KC_T, KC_O, COMBO_END};
 const uint16_t PROGMEM combo_20[] = { KC_T, KC_P, COMBO_END};
-const uint16_t PROGMEM combo_21[] = { KC_N, KC_I, KC_O, COMBO_END};
-const uint16_t PROGMEM combo_22[] = { KC_N, KC_I, KC_P, COMBO_END};
-const uint16_t PROGMEM combo_23[] = { KC_N, KC_I, KC_T, COMBO_END};
+const uint16_t PROGMEM combo_21[] = { KC_E, KC_S, COMBO_END};
+const uint16_t PROGMEM combo_22[] = { KC_E, KC_A, COMBO_END};
+const uint16_t PROGMEM combo_23[] = { KC_E, KC_N, COMBO_END};
+const uint16_t PROGMEM combo_24[] = { KC_E, KC_I, COMBO_END};
+const uint16_t PROGMEM combo_25[] = { KC_E, KC_O, COMBO_END};
+const uint16_t PROGMEM combo_26[] = { KC_E, KC_P, COMBO_END};
+const uint16_t PROGMEM combo_27[] = { KC_S, KC_A, COMBO_END};
+const uint16_t PROGMEM combo_28[] = { KC_S, KC_N, COMBO_END};
+const uint16_t PROGMEM combo_29[] = { KC_S, KC_I, COMBO_END};
+const uint16_t PROGMEM combo_30[] = { KC_S, KC_O, COMBO_END};
+const uint16_t PROGMEM combo_31[] = { KC_S, KC_P, COMBO_END};
+const uint16_t PROGMEM combo_32[] = { KC_A, KC_N, COMBO_END};
+const uint16_t PROGMEM combo_33[] = { KC_A, KC_I, COMBO_END};
+const uint16_t PROGMEM combo_34[] = { KC_A, KC_O, COMBO_END};
+const uint16_t PROGMEM combo_35[] = { KC_A, KC_P, COMBO_END};
+const uint16_t PROGMEM combo_36[] = { KC_N, KC_I, COMBO_END};
+const uint16_t PROGMEM combo_37[] = { KC_N, KC_O, COMBO_END};
+const uint16_t PROGMEM combo_38[] = { KC_N, KC_P, COMBO_END};
+const uint16_t PROGMEM combo_39[] = { KC_I, KC_O, COMBO_END};
+const uint16_t PROGMEM combo_40[] = { KC_I, KC_P, COMBO_END};
+const uint16_t PROGMEM combo_41[] = { KC_O, KC_P, COMBO_END};
+const uint16_t PROGMEM combo_42[] = { KC_N, KC_I, KC_O, COMBO_END};
+const uint16_t PROGMEM combo_43[] = { KC_N, KC_I, KC_P, COMBO_END};
+const uint16_t PROGMEM combo_44[] = { KC_N, KC_I, KC_T, COMBO_END};
+
 
 combo_t key_combos[COMBO_COUNT] = {
     COMBO(combo_14, KC_R),
@@ -50,9 +72,30 @@ combo_t key_combos[COMBO_COUNT] = {
     COMBO(combo_18, KC_V),
     COMBO(combo_19, KC_G),
     COMBO(combo_20, KC_BSPC),
-    COMBO(combo_21, RGB_TOG),
-    COMBO(combo_22, RGB_MODE_FORWARD),
-    COMBO(combo_23, RGB_VAI),
+    COMBO(combo_21, KC_D),
+    COMBO(combo_22, KC_X),
+    COMBO(combo_23, KC_Y),
+    COMBO(combo_24, KC_COMMA),
+    COMBO(combo_25, KC_MINUS),
+    COMBO(combo_26, KC_QUOTE),
+    COMBO(combo_27, KC_W),
+    COMBO(combo_28, KC_J),
+    COMBO(combo_29, KC_K),
+    COMBO(combo_30, KC_DOT),
+    COMBO(combo_31, KC_RIGHT_PAREN),
+    COMBO(combo_32, KC_Q),
+    COMBO(combo_33, KC_Z),
+    COMBO(combo_34, KC_LEFT_PAREN),
+    COMBO(combo_35, KC_QUESTION),
+    COMBO(combo_36, KC_H),
+    COMBO(combo_37, KC_U),
+    COMBO(combo_38, KC_M),
+    COMBO(combo_39, KC_L),
+    COMBO(combo_40, KC_EXCLAIM),
+    COMBO(combo_41, KC_SEMICOLON),
+    COMBO(combo_42, RGB_TOG),
+    COMBO(combo_43, RGB_MODE_FORWARD),
+    COMBO(combo_44, RGB_VAI),
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
