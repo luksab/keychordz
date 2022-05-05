@@ -9,3 +9,4 @@ schematicRight/keychordz-backups/
 nRF53840Breakout/keychordz-backups/
 keystats/target/
 qmk/parser/target/
+firmware/target/

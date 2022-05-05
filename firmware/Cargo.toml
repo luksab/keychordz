@@ -1,0 +1,42 @@
+[package]
+name = "firmware"
+version = "0.1.0"
+authors = ["luksab <lukas@sabatschus.de>"]
+edition = "2018"
+
+# Configure the build for minimal size - AVRs have very little program memory
+[profile.dev]
+panic = "abort"
+lto = true
+opt-level = "s"
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+debug = true
+lto = true
+opt-level = "s"
+
+[dependencies]
+avrd = "1.0.0"
+panic-halt = "0.2.0"
+atmega32u4-usb-hid = {path = "./atmega32u4-usb-hid"}
+embedded-hal = "0.2.7"
+ufmt = "0.1"
+
+smart-leds = "0.3.0"
+ws2812-spi = "0.4.0"
+
+[dependencies.avr-device]
+version = "0.3.2"
+features = ["atmega32u4"]
+
+[dependencies.arduino-hal]
+git = "https://github.com/rahix/avr-hal"
+rev = "5d757696e338104622a0f89c51020b718bf48b62"
+features = ["sparkfun-promicro"]
+
+[[bin]]
+name = "firmware"
+test = false
+bench = false
