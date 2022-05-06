@@ -3,6 +3,7 @@
 #![no_main]
 
 mod key_prot;
+mod led;
 
 use arduino_hal::delay_ms;
 use arduino_hal::prelude::*;
@@ -89,6 +90,8 @@ fn main() -> ! {
 
     let mut key_prot = key_prot::KeyProt::new(d3, d2);
 
+    let mut led_pin = pins.d9.into_output().downgrade();
+
     loop {
         let mut any_key_pressed = false;
         let mut keys_pressed = 0u8;
@@ -142,6 +145,10 @@ fn main() -> ! {
         if any_key_pressed {
             // led_usb.set_high();
             ufmt::uwriteln!(&mut serial, "Key pressed").void_unwrap();
+            led::write_to_led(&mut led_pin, &[
+                12, 0, 0,
+                0, 12, 0,
+                0, 0, 12]);
         } else {
             // led_usb.set_low();
         }
