@@ -14,7 +14,7 @@ use panic_halt as _;
 fn main() -> ! {
     let dp = atmega32u4::Peripherals::take().unwrap();
     let pins = arduino_hal::pins!(dp);
-    let mut serial = arduino_hal::default_serial!(dp, pins, 9600);
+    let mut serial = arduino_hal::default_serial!(dp, pins, 115200);
 
     ufmt::uwriteln!(&mut serial, "Hello!").void_unwrap();
 
@@ -90,7 +90,6 @@ fn main() -> ! {
     let mut key_prot = key_prot::KeyProt::new(d3, d2);
 
     loop {
-        ufmt::uwriteln!(&mut serial, "loop").void_unwrap();
         let mut any_key_pressed = false;
         let mut keys_pressed = 0u8;
         for (i, key) in keys.iter().enumerate() {
@@ -101,6 +100,7 @@ fn main() -> ! {
         }
         // led.set_high();
         if !is_usb {
+            ufmt::uwriteln!(&mut serial, "writing {}", keys_pressed).void_unwrap();
             match key_prot.write_blocking(&[keys_pressed]) {
                 Ok(_) => {
                     ufmt::uwriteln!(&mut serial, "Wrote {:?}", &[keys_pressed]).void_unwrap();
@@ -115,16 +115,22 @@ fn main() -> ! {
             }
         } else {
             let mut buf = [0; 1];
-            match key_prot.read_blocking(&mut buf) {
-                Ok(_) => {}
+            ufmt::uwriteln!(&mut serial, "reading").void_unwrap();
+            let bytes_read = match key_prot.read_blocking(&mut buf) {
+                Ok(size) => {size}
+                Err(key_prot::Error::Overflow) => {
+                    ufmt::uwriteln!(&mut serial, "Overflow").void_unwrap();
+                    buf.len() as u8
+                }
                 Err(e) => {
                     ufmt::uwriteln!(&mut serial, "read Error: {:?}", e).void_unwrap();
+                    continue;
                     // led_usb.set_high();
                     // delay_ms(100);
                     // led_usb.set_low();
                     // delay_ms(100);
                 }
-            }
+            };
             ufmt::uwriteln!(&mut serial, "read {:?}", &buf).void_unwrap();
             // any_key_pressed |= i2c_buffer[0] != 0;
             // if i2c_buffer[0] != 0 {

@@ -13,7 +13,7 @@ opt-level = "s"
 [profile.release]
 panic = "abort"
 codegen-units = 1
-debug = true
+# debug = true # 60 bytes saved
 lto = true
 opt-level = "s"
 
@@ -23,9 +23,6 @@ panic-halt = "0.2.0"
 atmega32u4-usb-hid = {path = "./atmega32u4-usb-hid"}
 embedded-hal = "0.2.7"
 ufmt = "0.1"
-
-smart-leds = "0.3.0"
-ws2812-spi = "0.4.0"
 
 [dependencies.avr-device]
 version = "0.3.2"
