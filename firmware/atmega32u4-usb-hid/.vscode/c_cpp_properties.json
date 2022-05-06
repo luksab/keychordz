@@ -1,0 +1,17 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/nix/store/ngcw2rcf140z8rfwv0rwfnrpy0wmwzmn-avr-libc-avr-2.0.0/avr/include/**"
+            ],
+            "defines": [],
+            "compilerPath": "/nix/store/y9ghdbzhzz5h294cn51791djsxmfasxh-avr-stage-final-gcc-debug-wrapper-10.3.0/bin/avr-gcc",
+            "cStandard": "gnu17",
+            "cppStandard": "gnu++17",
+            "intelliSenseMode": "gcc-x86"
+        }
+    ],
+    "version": 4
+}

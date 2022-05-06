@@ -1,0 +1,41 @@
+[package]
+name = "atmega32u4-usb-hid"
+version = "0.1.0"
+authors = ["luksab"]
+edition = "2018"
+
+[lib]
+test = false
+bench = false
+
+[features]
+default = ["rt"]
+rt = ["avr-device/rt"]
+
+[dependencies.avr-device]
+version = "0.3.2"
+features = ["atmega32u4"]
+
+[dependencies.arduino-hal]
+git = "https://github.com/rahix/avr-hal"
+rev = "5d757696e338104622a0f89c51020b718bf48b62"
+features = ["sparkfun-promicro"]
+
+[build-dependencies]
+cc = "1.0.60"
+
+[dev-dependencies]
+avrd = "1.0.0"
+panic-halt = "0.2.0"
+
+[profile.dev]
+panic = "abort"
+lto = true
+opt-level = "s"
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+debug = true
+lto = true
+opt-level = "s"
