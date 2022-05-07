@@ -1,20 +1,27 @@
 #![feature(llvm_asm)]
+#![feature(abi_avr_interrupt)]
+#![feature(optimize_attribute)]
+#![feature(const_generics)]
+#![feature(const_evaluatable_checked)]
 #![no_std]
 #![no_main]
 
 mod key_prot;
 mod led;
+mod millis;
 
 use arduino_hal::delay_ms;
 use arduino_hal::prelude::*;
 use atmega32u4_usb_hid::UsbKeyboard;
 use avr_device::atmega32u4;
+use led::*;
 use panic_halt as _;
 
 #[arduino_hal::entry]
 fn main() -> ! {
     let dp = atmega32u4::Peripherals::take().unwrap();
     let pins = arduino_hal::pins!(dp);
+    millis::millis_init(dp.TC0);
     let mut serial = arduino_hal::default_serial!(dp, pins, 115200);
 
     ufmt::uwriteln!(&mut serial, "Hello!").void_unwrap();
@@ -90,7 +97,8 @@ fn main() -> ! {
 
     let mut key_prot = key_prot::KeyProt::new(d3, d2);
 
-    let mut led_pin = pins.d9.into_output().downgrade();
+    // let mut led_pin = pins.d9.into_output().downgrade();
+    let mut led = Leds::<7>::new(pins.d9.into_output());
 
     loop {
         let mut any_key_pressed = false;
@@ -103,7 +111,6 @@ fn main() -> ! {
         }
         // led.set_high();
         if !is_usb {
-            ufmt::uwriteln!(&mut serial, "writing {}", keys_pressed).void_unwrap();
             match key_prot.write_blocking(&[keys_pressed]) {
                 Ok(_) => {
                     ufmt::uwriteln!(&mut serial, "Wrote {:?}", &[keys_pressed]).void_unwrap();
@@ -118,9 +125,8 @@ fn main() -> ! {
             }
         } else {
             let mut buf = [0; 1];
-            ufmt::uwriteln!(&mut serial, "reading").void_unwrap();
             let bytes_read = match key_prot.read_blocking(&mut buf) {
-                Ok(size) => {size}
+                Ok(size) => size,
                 Err(key_prot::Error::Overflow) => {
                     ufmt::uwriteln!(&mut serial, "Overflow").void_unwrap();
                     buf.len() as u8
@@ -134,7 +140,7 @@ fn main() -> ! {
                     // delay_ms(100);
                 }
             };
-            ufmt::uwriteln!(&mut serial, "read {:?}", &buf).void_unwrap();
+            ufmt::uwriteln!(&mut serial, "{:?}", &buf).void_unwrap();
             // any_key_pressed |= i2c_buffer[0] != 0;
             // if i2c_buffer[0] != 0 {
             //     led_i2c.set_high();
@@ -142,15 +148,21 @@ fn main() -> ! {
             //     led_i2c.set_low();
             // }
         }
+
+        if keys_pressed == 1 {
+            led.brightness -= 1;
+        }
+        if keys_pressed == 2 {
+            led.brightness += 1;
+        }
+
         if any_key_pressed {
             // led_usb.set_high();
-            ufmt::uwriteln!(&mut serial, "Key pressed").void_unwrap();
-            led::write_to_led(&mut led_pin, &[
-                12, 0, 0,
-                0, 12, 0,
-                0, 0, 12]);
+            ufmt::uwriteln!(&mut serial, "kp").void_unwrap();
+            // led.write_to_led(&[12, 0, 0, 0, 12, 0, 0, 0, 12]);
         } else {
             // led_usb.set_low();
         }
+        led.draw();
     }
 }
