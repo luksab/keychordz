@@ -96,7 +96,9 @@ where
 
     #[optimize(speed)]
     pub fn write_to_led(&mut self) {
-        let brightness = self.brightness;
+        // brightness with gamma correction
+        let brightness = self.brightness as f32 / 255.0;
+        let brightness = (brightness * brightness * 255.0) as u8;
         self.buffer.iter_mut().for_each(|byte| {
             *byte = ((*byte as u16 * brightness as u16) / 255) as u8;
         });
