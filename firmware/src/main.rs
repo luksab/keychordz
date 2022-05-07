@@ -100,6 +100,8 @@ fn main() -> ! {
     // let mut led_pin = pins.d9.into_output().downgrade();
     let mut led = Leds::<7>::new(pins.d9.into_output());
 
+    let mut last_keys = 0;
+
     loop {
         let mut any_key_pressed = false;
         let mut keys_pressed = 0u8;
@@ -149,11 +151,13 @@ fn main() -> ! {
             // }
         }
 
-        if keys_pressed == 1 {
-            led.brightness -= 1;
+        // print keys_pressed in binary
+        ufmt::uwriteln!(&mut serial, "{:?}, {:?}", &keys_pressed, &last_keys).void_unwrap();
+        if keys_pressed == 1 && last_keys & 1 == 0 {
+            led.brightness = led.brightness.saturating_add(10);
         }
-        if keys_pressed == 2 {
-            led.brightness += 1;
+        if keys_pressed == 2 && last_keys & 2 == 0 {
+            led.brightness = led.brightness.saturating_sub(10);
         }
 
         if any_key_pressed {
@@ -164,5 +168,7 @@ fn main() -> ! {
             // led_usb.set_low();
         }
         led.draw();
+
+        last_keys = keys_pressed;
     }
 }
