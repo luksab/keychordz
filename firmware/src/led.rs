@@ -63,8 +63,6 @@ where
         avr_device::asm::nop();
         avr_device::asm::nop();
         avr_device::asm::nop();
-        avr_device::asm::nop();
-        avr_device::asm::nop();
     }
 
     #[inline(always)]
@@ -78,20 +76,7 @@ where
         avr_device::asm::nop();
         avr_device::asm::nop();
         avr_device::asm::nop();
-        avr_device::asm::nop();
-        avr_device::asm::nop();
         pin.set_low();
-        avr_device::asm::nop();
-        avr_device::asm::nop();
-        avr_device::asm::nop();
-        avr_device::asm::nop();
-        avr_device::asm::nop();
-        avr_device::asm::nop();
-        avr_device::asm::nop();
-        avr_device::asm::nop();
-        avr_device::asm::nop();
-        avr_device::asm::nop();
-        avr_device::asm::nop();
     }
 
     #[optimize(speed)]
