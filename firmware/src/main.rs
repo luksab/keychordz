@@ -6,6 +6,10 @@
 #![no_std]
 #![no_main]
 
+//! Keyboard firmware for Keychordz
+//! 
+//! Flash using ```cargo run --release```
+
 mod key_prot;
 mod led;
 mod millis;

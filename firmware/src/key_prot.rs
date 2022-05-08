@@ -21,14 +21,21 @@ pub struct KeyProt {
 #[derive(Debug, Clone, Copy, uDebug)]
 pub enum Error {
     PinsBusy,
+    /// The line is waiting to be used for writing, but we want to write as well
     AlreadyWriting,
+    /// The provided buffer for reading is too small for the sent message
+    /// 
+    /// The buffer is filled with data and all data after is discarded
     Overflow,
+    /// Read an incorrect end marker. Probably corrupt transmission
     IncorrectEndMarker,
+    /// Timed out waiting for clock
     Timeout,
     Other,
 }
 
 impl KeyProt {
+    /// construct new KeyProt owning the pins PD0 and PD1
     pub fn new(clk: Pin<Input<Floating>, PD0>, dta: Pin<Input<Floating>, PD1>) -> Self {
         Self {
             clk: Some(clk.into_pull_up_input()),
@@ -36,6 +43,7 @@ impl KeyProt {
         }
     }
 
+    /// write a single bit
     #[inline(always)]
     fn _write_bit(clk: &mut Pin<Output, PD0>, dta: &mut Pin<Output, PD1>, bit: bool) {
         delay_us(5);
@@ -160,6 +168,7 @@ impl KeyProt {
         }
     }
 
+    /// Wait for partner to start reading then write
     pub fn write_blocking(&mut self, data: &[u8]) -> Result<(), Error> {
         // take clk and dta pins
         let clk = match self.clk.take() {
@@ -197,6 +206,7 @@ impl KeyProt {
         Ok(())
     }
 
+    /// Wait for partner to start writing, then
     /// read up to buffer.len() bytes, returning the number of bytes read
     pub fn read_blocking(&mut self, buffer: &mut [u8]) -> Result<u8, Error> {
         // take clk and dta pins

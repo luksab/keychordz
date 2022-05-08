@@ -7,17 +7,24 @@ use smart_leds::hsv::Hsv;
 
 use crate::millis::millis;
 
+/// Led modes
 enum Modes {
     HueWaves,
 }
 
+/// Led struct owning the Pin the LEDs are connected to
+/// 
+/// Currently assumes Pin `PB5` and WS2812b LEDs
 pub struct Leds<const N: usize>
 where
     [u8; 3 * N]: Sized,
 {
     pin: Pin<Output, PB5>,
     state: Modes,
+    /// buffer containing the data to be sent on the next draw call
+    /// three bytes per LED
     buffer: [u8; 3 * N],
+    /// brightess will be gamma corrected
     pub brightness: u8,
 }
 
@@ -25,6 +32,7 @@ impl<const N: usize> Leds<N>
 where
     [u8; 3 * N]: Sized,
 {
+    /// construct new Led struct owning pin `PB5`
     pub fn new(pin: Pin<Output, PB5>) -> Self {
         Self {
             pin,
@@ -34,6 +42,7 @@ where
         }
     }
 
+    /// update the buffer and send new state to LEDs
     pub fn draw(&mut self) {
         match self.state {
             Modes::HueWaves => {
@@ -55,6 +64,7 @@ where
         }
     }
 
+    /// write a zero to ws2812 LED strip
     #[inline(always)]
     fn write_zero(pin: &mut Pin<Output, PB5>) {
         pin.set_high();
@@ -65,6 +75,7 @@ where
         avr_device::asm::nop();
     }
 
+    /// write a one to ws2812 LED strip
     #[inline(always)]
     fn write_one(pin: &mut Pin<Output, PB5>) {
         pin.set_high();
@@ -79,6 +90,7 @@ where
         pin.set_low();
     }
 
+    /// write buffer to LEDs
     #[optimize(speed)]
     pub fn write_to_led(&mut self) {
         // brightness with gamma correction
@@ -106,35 +118,3 @@ where
         });
     }
 }
-
-// #[optimize(speed)]
-// pub fn write_to_led(pin: &mut Pin<Output>, array: &[u8]) {
-//     for val in array {
-//         for b in (0..8) {
-//             let bit = (val >> b) & 0x1;
-
-//             if bit != 0 {
-//                 // Send a ONE
-
-//                 pin.set_high();
-//                 // unsafe {llvm_asm!("PORTC |= 0b00000001;")};
-//                 // Wait exact number of cycles specified
-//                 avr_device::asm::nop();
-//                 avr_device::asm::nop();
-//                 avr_device::asm::nop();
-//                 avr_device::asm::nop();
-//                 avr_device::asm::nop();
-//                 avr_device::asm::nop();
-//                 avr_device::asm::nop();
-//                 avr_device::asm::nop();
-//                 avr_device::asm::nop();
-//                 pin.set_low();
-//             } else {
-//                 // Send a ZERO
-
-//                 pin.set_high();
-//                 pin.set_low();
-//             }
-//         }
-//     }
-// }

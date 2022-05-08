@@ -1,3 +1,5 @@
+//! from https://github.com/Rahix/avr-hal/blob/main/examples/arduino-uno/src/bin/uno-millis.rs
+
 use core::cell;
 use panic_halt as _;
 
@@ -20,6 +22,7 @@ const MILLIS_INCREMENT: u32 = PRESCALER * TIMER_COUNTS / 16000;
 static MILLIS_COUNTER: avr_device::interrupt::Mutex<cell::Cell<u32>> =
     avr_device::interrupt::Mutex::new(cell::Cell::new(0));
 
+/// call this once at the start of the program
 pub fn millis_init(tc0: arduino_hal::pac::TC0) {
     // Configure the timer for the above interval (in CTC mode)
     // and enable its interrupt.
@@ -49,6 +52,7 @@ fn TIMER0_COMPA() {
     })
 }
 
+/// get the number of milliseconds since the `millis_init` was called
 pub fn millis() -> u32 {
     avr_device::interrupt::free(|cs| MILLIS_COUNTER.borrow(cs).get())
 }
