@@ -1,7 +1,9 @@
 #ifndef usb_serial_h__
 #define usb_serial_h__
 
+#ifndef __AVR_ATmega32U4__
 #define __AVR_ATmega32U4__
+#endif
 #include <avr/io.h>
 
 #include <stdint.h>
