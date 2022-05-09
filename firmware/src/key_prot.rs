@@ -21,8 +21,8 @@ pub struct KeyProt {
 #[derive(Debug, Clone, Copy, uDebug)]
 pub enum Error {
     PinsBusy,
-    /// The line is waiting to be used for writing, but we want to write as well
-    AlreadyWriting,
+    /// The line is waiting to be used for a transaction, but we want to initiate as well
+    TransactionRunning,
     /// The provided buffer for reading is too small for the sent message
     /// 
     /// The buffer is filled with data and all data after is discarded
@@ -186,7 +186,7 @@ impl KeyProt {
         if clk.is_low() {
             self.clk = Some(clk.into_pull_up_input());
             self.dta = Some(dta.into_pull_up_input());
-            return Err(Error::AlreadyWriting);
+            return Err(Error::TransactionRunning);
         }
         // pull low to indicate pending write
         let mut clk = clk.into_output();
@@ -221,6 +221,13 @@ impl KeyProt {
                 return Err(Error::PinsBusy);
             }
         };
+        // check that dta is high, meaning no transaction is in progress
+        if dta.is_low() {
+            self.clk = Some(clk.into_pull_up_input());
+            self.dta = Some(dta.into_pull_up_input());
+            return Err(Error::TransactionRunning);
+        }
+
         // wait for write
         while clk.is_high() {}
 
