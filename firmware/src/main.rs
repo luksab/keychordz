@@ -7,10 +7,11 @@
 #![no_main]
 
 //! Keyboard firmware for Keychordz
-//! 
+//!
 //! Flash using ```cargo run --release```
 
 mod key_prot;
+mod key_state;
 mod led;
 mod millis;
 
@@ -18,6 +19,8 @@ use arduino_hal::delay_ms;
 use arduino_hal::prelude::*;
 use atmega32u4_usb_hid::UsbKeyboard;
 use avr_device::atmega32u4;
+use key_prot::KeyProt;
+use key_state::KeyState;
 use led::*;
 use panic_halt as _;
 
@@ -59,35 +62,8 @@ fn main() -> ! {
 
     delay_ms(10);
 
-    // pro micro pins:
-    // pins.d2 = D1
-    // pins.d3 = D0
-    // pins.d4 = D4
-    // pins.d5 = C6
-    // pins.d6 = D7
-    // pins.d7 = E6
-    // pins.d8 = B4
-    // pins.d9 = B5
-    // pins.d10 = B6
-    // pins.d14 = B2
-    // pins.d15 = B1
-    // pins.d16 = B3
-
-    // pins.d15 = B1
-    // pins.d14 = B2
-    // pins.d16 = B3
-    // pins.d8 = B4
-    // pins.d9 = B5
-    // pins.d10 = B6
-    // pins.d5 = C6
-    // pins.d3 = D0
-    // pins.d2 = D1
-    // pins.d4 = D4
-    // pins.d6 = D7
-    // pins.d7 = E6
-
-    // let mut led_usb = pins.led_tx.into_output();
-    // let mut led_i2c = pins.led_rx.into_output();
+    let side_pin = pins.d8.into_pull_up_input();
+    let is_right = side_pin.is_low();
 
     let keys = [
         pins.d5.into_pull_up_input().downgrade(),
@@ -99,23 +75,22 @@ fn main() -> ! {
         pins.d15.into_pull_up_input().downgrade(),
     ];
 
-    let mut key_prot = key_prot::KeyProt::new(d3, d2);
+    let mut key_state = KeyState::new();
+
+    let mut key_prot = KeyProt::new(d3, d2);
 
     // let mut led_pin = pins.d9.into_output().downgrade();
     let mut led = Leds::<7>::new(pins.d9.into_output());
 
-    let mut last_keys = 0;
-
     loop {
-        let mut any_key_pressed = false;
         let mut keys_pressed = 0u8;
         for (i, key) in keys.iter().enumerate() {
             if key.is_low() {
-                any_key_pressed = true;
                 keys_pressed |= 1 << i;
             }
         }
-        // led.set_high();
+
+        // switch code flow depending on USB state
         if !is_usb {
             match key_prot.write_blocking(&[keys_pressed]) {
                 Ok(_) => {
@@ -123,13 +98,10 @@ fn main() -> ! {
                 }
                 Err(e) => {
                     ufmt::uwriteln!(&mut serial, "write Error: {:?}", e).void_unwrap();
-                    // led_i2c.set_high();
-                    // delay_ms(100);
-                    // led_i2c.set_low();
-                    // delay_ms(100);
                 }
             }
         } else {
+            // expecting key state, which is a u8, so one byte
             let mut buf = [0; 1];
             let bytes_read = match key_prot.read_blocking(&mut buf) {
                 Ok(size) => size,
@@ -140,39 +112,29 @@ fn main() -> ! {
                 Err(e) => {
                     ufmt::uwriteln!(&mut serial, "read Error: {:?}", e).void_unwrap();
                     continue;
-                    // led_usb.set_high();
-                    // delay_ms(100);
-                    // led_usb.set_low();
-                    // delay_ms(100);
                 }
             };
+            if bytes_read == 0 {
+                ufmt::uwriteln!(&mut serial, "No bytes read").void_unwrap();
+                continue;
+            }
             ufmt::uwriteln!(&mut serial, "{:?}", &buf).void_unwrap();
-            // any_key_pressed |= i2c_buffer[0] != 0;
-            // if i2c_buffer[0] != 0 {
-            //     led_i2c.set_high();
-            // } else {
-            //     led_i2c.set_low();
-            // }
+
+            // update key state with the new keys
+            let keys_hit = if is_right {
+                key_state.update(buf[0], keys_pressed)
+            } else {
+                key_state.update(keys_pressed, buf[0])
+            };
+
+            if keys_hit == 1 {
+                led.brightness = led.brightness.saturating_add(10);
+            }
+            if keys_hit == 2 {
+                led.brightness = led.brightness.saturating_sub(10);
+            }
         }
 
-        // print keys_pressed in binary
-        ufmt::uwriteln!(&mut serial, "{:?}, {:?}", &keys_pressed, &last_keys).void_unwrap();
-        if keys_pressed == 1 && last_keys & 1 == 0 {
-            led.brightness = led.brightness.saturating_add(10);
-        }
-        if keys_pressed == 2 && last_keys & 2 == 0 {
-            led.brightness = led.brightness.saturating_sub(10);
-        }
-
-        if any_key_pressed {
-            // led_usb.set_high();
-            ufmt::uwriteln!(&mut serial, "kp").void_unwrap();
-            // led.write_to_led(&[12, 0, 0, 0, 12, 0, 0, 0, 12]);
-        } else {
-            // led_usb.set_low();
-        }
         led.draw();
-
-        last_keys = keys_pressed;
     }
 }
