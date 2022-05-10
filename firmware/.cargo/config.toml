@@ -5,5 +5,5 @@ target = "atmega32u4.json"
 runner = "ravedude promicro"
 
 [unstable]
-build-std = ["core"]
+build-std = ["core", "alloc"]
 build-std-features = ["compiler-builtins-mangled-names"]
