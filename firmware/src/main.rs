@@ -3,6 +3,7 @@
 #![feature(optimize_attribute)]
 #![feature(const_generics)]
 #![feature(const_evaluatable_checked)]
+#![feature(default_alloc_error_handler)]
 #![no_std]
 #![no_main]
 
@@ -10,17 +11,23 @@
 //!
 //! Flash using ```cargo run --release```
 
+#[macro_use]
+extern crate alloc;
+
+mod allocator;
 mod key_prot;
 mod key_state;
+mod key_handler;
 mod led;
 mod millis;
+mod eeprom;
 
 use arduino_hal::delay_ms;
 use arduino_hal::prelude::*;
 use atmega32u4_usb_hid::UsbKeyboard;
 use avr_device::atmega32u4;
+use key_handler::KeyHandler;
 use key_prot::KeyProt;
-use key_state::KeyState;
 use led::*;
 use panic_halt as _;
 
@@ -60,9 +67,9 @@ fn main() -> ! {
         }
     };
 
+    let side_pin = pins.d8.into_pull_up_input();
     delay_ms(10);
 
-    let side_pin = pins.d8.into_pull_up_input();
     let is_right = side_pin.is_low();
 
     let keys = [
@@ -75,7 +82,7 @@ fn main() -> ! {
         pins.d15.into_pull_up_input().downgrade(),
     ];
 
-    let mut key_state = KeyState::new();
+    let mut key_handler = KeyHandler::new();
 
     let mut key_prot = KeyProt::new(d3, d2);
 
@@ -121,18 +128,20 @@ fn main() -> ! {
             ufmt::uwriteln!(&mut serial, "{:?}", &buf).void_unwrap();
 
             // update key state with the new keys
-            let keys_hit = if is_right {
-                key_state.update(buf[0], keys_pressed)
+            if is_right {
+                key_handler.update(buf[0], keys_pressed)
             } else {
-                key_state.update(keys_pressed, buf[0])
+                key_handler.update(keys_pressed, buf[0])
             };
 
-            if keys_hit == 1 {
-                led.brightness = led.brightness.saturating_add(10);
-            }
-            if keys_hit == 2 {
-                led.brightness = led.brightness.saturating_sub(10);
-            }
+            ufmt::uwriteln!(&mut serial, "Ks: {:?}", &key_handler.should_trigger).void_unwrap();
+
+            // if keys_hit == 1 {
+            //     led.brightness = led.brightness.saturating_add(10);
+            // }
+            // if keys_hit == 2 {
+            //     led.brightness = led.brightness.saturating_sub(10);
+            // }
         }
 
         led.draw();
