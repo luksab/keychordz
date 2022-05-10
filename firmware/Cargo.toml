@@ -20,7 +20,7 @@ opt-level = "s"
 [dependencies]
 avrd = "1.0.0"
 panic-halt = "0.2.0"
-atmega32u4-usb-hid = {path = "./atmega32u4-usb-hid"}
+atmega32u4-usb-hid = { path = "./atmega32u4-usb-hid" }
 embedded-hal = "0.2.7"
 ufmt = "0.1"
 smart-leds = "0.3"
