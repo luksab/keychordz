@@ -38,7 +38,7 @@ where
             pin,
             state: Modes::HueWaves,
             buffer: [0; 3 * N],
-            brightness: 255,
+            brightness: 50,
         }
     }
 
