@@ -12,6 +12,9 @@ bench = false
 default = ["rt"]
 rt = ["avr-device/rt"]
 
+[dependencies]
+defines = { path = "../defines" }
+
 [dependencies.avr-device]
 version = "0.3.2"
 features = ["atmega32u4"]

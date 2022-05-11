@@ -1,7 +1,6 @@
 #![no_std]
 #![feature(abi_avr_interrupt)]
 #![allow(dead_code)]
-mod defines;
 
 use avr_device::atmega32u4::{PLL, USB_DEVICE};
 pub use defines::*;

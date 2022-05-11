@@ -1,3 +1,10 @@
+#![no_std]
+
+#[macro_use]
+extern crate alloc;
+
+use core::str::FromStr;
+
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum Modifier {
     None = 0,
@@ -9,6 +16,25 @@ pub enum Modifier {
     RightShift = 0x20,
     RightAlt = 0x40,
     RightGui = 0x80,
+}
+
+impl FromStr for Modifier {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let s = s.to_lowercase();
+        match s.as_str() {
+            "ctrl" => Ok(Modifier::Ctrl),
+            "shift" => Ok(Modifier::Shift),
+            "alt" => Ok(Modifier::Alt),
+            "gui" => Ok(Modifier::Gui),
+            "rightctrl" => Ok(Modifier::RightCtrl),
+            "rightshift" => Ok(Modifier::RightShift),
+            "rightalt" => Ok(Modifier::RightAlt),
+            "rightgui" => Ok(Modifier::RightGui),
+            _ => Err(()),
+        }
+    }
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -112,10 +138,10 @@ pub enum Key {
     Keypad0 = 98,
     KeypadPeriod = 99,
 
-    Key102nd = 0x64,   // Keyboard Non-US \ and |
-    Compose = 0x65, // Keyboard Application
-    Power = 0x66,   // Keyboard Power
-    Kpequal = 0x67, // Keypad =
+    Key102nd = 0x64, // Keyboard Non-US \ and |
+    Compose = 0x65,  // Keyboard Application
+    Power = 0x66,    // Keyboard Power
+    Kpequal = 0x67,  // Keypad =
 
     F13 = 0x68, // Keyboard F13
     F14 = 0x69, // Keyboard F14
@@ -234,4 +260,122 @@ pub enum Key {
     RightShift = 0xe5, // Keyboard Right Shift
     RightAlt = 0xe6,   // Keyboard Right Alt
     RightMeta = 0xe7,  // Keyboard Right GUI
+}
+
+impl FromStr for Key {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let s = s.to_lowercase();
+        match s.as_ref() {
+            "a" => Ok(Key::A),
+            "b" => Ok(Key::B),
+            "c" => Ok(Key::C),
+            "d" => Ok(Key::D),
+            "e" => Ok(Key::E),
+            "f" => Ok(Key::F),
+            "g" => Ok(Key::G),
+            "h" => Ok(Key::H),
+            "i" => Ok(Key::I),
+            "j" => Ok(Key::J),
+            "k" => Ok(Key::K),
+            "l" => Ok(Key::L),
+            "m" => Ok(Key::M),
+            "n" => Ok(Key::N),
+            "o" => Ok(Key::O),
+            "p" => Ok(Key::P),
+            "q" => Ok(Key::Q),
+            "r" => Ok(Key::R),
+            "s" => Ok(Key::S),
+            "t" => Ok(Key::T),
+            "u" => Ok(Key::U),
+            "v" => Ok(Key::V),
+            "w" => Ok(Key::W),
+            "x" => Ok(Key::X),
+            "y" => Ok(Key::Y),
+            "z" => Ok(Key::Z),
+            "0" => Ok(Key::Num0),
+            "num0" => Ok(Key::Num0),
+            "1" => Ok(Key::Num1),
+            "num1" => Ok(Key::Num1),
+            "2" => Ok(Key::Num2),
+            "num2" => Ok(Key::Num2),
+            "3" => Ok(Key::Num3),
+            "num3" => Ok(Key::Num3),
+            "4" => Ok(Key::Num4),
+            "num4" => Ok(Key::Num4),
+            "5" => Ok(Key::Num5),
+            "num5" => Ok(Key::Num5),
+            "6" => Ok(Key::Num6),
+            "num6" => Ok(Key::Num6),
+            "7" => Ok(Key::Num7),
+            "num7" => Ok(Key::Num7),
+            "8" => Ok(Key::Num8),
+            "num8" => Ok(Key::Num8),
+            "9" => Ok(Key::Num9),
+            "num9" => Ok(Key::Num9),
+            "f1" => Ok(Key::F1),
+            "f2" => Ok(Key::F2),
+            "f3" => Ok(Key::F3),
+            "f4" => Ok(Key::F4),
+            "f5" => Ok(Key::F5),
+            "f6" => Ok(Key::F6),
+            "f7" => Ok(Key::F7),
+            "f8" => Ok(Key::F8),
+            "f9" => Ok(Key::F9),
+            "f10" => Ok(Key::F10),
+            "f11" => Ok(Key::F11),
+            "f12" => Ok(Key::F12),
+            "f13" => Ok(Key::F13),
+            "f14" => Ok(Key::F14),
+            "f15" => Ok(Key::F15),
+            "f16" => Ok(Key::F16),
+            "f17" => Ok(Key::F17),
+            "f18" => Ok(Key::F18),
+            "f19" => Ok(Key::F19),
+            "f20" => Ok(Key::F20),
+            "f21" => Ok(Key::F21),
+            "f22" => Ok(Key::F22),
+            "f23" => Ok(Key::F23),
+            "f24" => Ok(Key::F24),
+            "open" => Ok(Key::Open),
+            "help" => Ok(Key::Help),
+            "props" => Ok(Key::Props),
+            "front" => Ok(Key::Front),
+            "stop" => Ok(Key::Stop),
+            "again" => Ok(Key::Again),
+            "undo" => Ok(Key::Undo),
+            "cut" => Ok(Key::Cut),
+            "copy" => Ok(Key::Copy),
+            "paste" => Ok(Key::Paste),
+            "find" => Ok(Key::Find),
+            "mute" => Ok(Key::Mute),
+            "volumeup" => Ok(Key::Volumeup),
+            "volumedown" => Ok(Key::Volumedown),
+            "kpcomma" => Ok(Key::KeypadComma),
+            "keypadcomma" => Ok(Key::KeypadComma),
+            "ro" => Ok(Key::Ro),
+            "katakanahiragana" => Ok(Key::Katakanahiragana),
+            "yen" => Ok(Key::Yen),
+            "henkan" => Ok(Key::Henkan),
+            "muhenkan" => Ok(Key::Muhenkan),
+            "kpfpcomma" => Ok(Key::KpJpComma),
+            "hangeul" => Ok(Key::Hangeul),
+            "hanja" => Ok(Key::Hanja),
+            "katakana" => Ok(Key::Katakana),
+            "hiragana" => Ok(Key::Hiragana),
+            "zenkakuhankaku" => Ok(Key::Zenkakuhankaku),
+            "kpleftparen" => Ok(Key::KpLeftParen),
+            "kprightparen" => Ok(Key::KpRightParen),
+            "leftctrl" => Ok(Key::LeftCtrl),
+            "leftshift" => Ok(Key::LeftShift),
+            "leftalt" => Ok(Key::LeftAlt),
+            "leftmeta" => Ok(Key::LeftMeta),
+            "rightctrl" => Ok(Key::RightCtrl),
+            "rightshift" => Ok(Key::RightShift),
+            "rightalt" => Ok(Key::RightAlt),
+            "rightmeta" => Ok(Key::RightMeta),
+            _ => Err(()),
+        }
+    }
 }
