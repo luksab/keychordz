@@ -26,6 +26,7 @@ pub enum Finger {
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[repr(u8)]
 pub enum Modifier {
     None = 0,
     Ctrl = 0x01,
@@ -58,6 +59,7 @@ impl FromStr for Modifier {
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[repr(u8)]
 pub enum Key {
     None = 0,
     ErrOvf = 0x01,
