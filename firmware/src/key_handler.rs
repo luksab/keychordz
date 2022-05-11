@@ -10,6 +10,9 @@ struct Chord {
 }
 
 impl Chord {
+    /// Create a new chord.
+    ///
+    /// triggger are the Fingers bitwise ORed together.
     pub fn new(trigger: u16, key: Key) -> Self {
         Chord { trigger, key }
     }
@@ -50,48 +53,46 @@ struct Layer {
 
 impl Layer {
     pub fn default() -> Self {
-        let mut chords = vec![
-            Chord::new(0b0100000000000000, Key::A),
-            Chord::new(0b0010000000000000, Key::S),
-            Chord::new(0b0001000000000000, Key::E),
-            Chord::new(0b0000100000000000, Key::T),
-            Chord::new(0b0000010000000000, Key::Tab),
-            Chord::new(0b0000000100000000, Key::Space),
-            Chord::new(0b0000000000001000, Key::N),
-            Chord::new(0b0000000000010000, Key::I),
-            Chord::new(0b0000000000100000, Key::O),
-            Chord::new(0b0000000001000000, Key::P),
-            Chord::new(0b0000000000000100, Key::Esc),
-            Chord::new(0b0000000000000001, Key::Space),
-            Chord::new(0b0001100000000000, Key::R),
-            Chord::new(0b0010100000000000, Key::C),
-            Chord::new(0b0100100000000000, Key::F),
-            Chord::new(0b0000100000001000, Key::B),
-            Chord::new(0b0000100000010000, Key::V),
-            Chord::new(0b0000100000100000, Key::G),
-            Chord::new(0b0000100001000000, Key::Backspace),
-            Chord::new(0b0011000000000000, Key::D),
-            Chord::new(0b0101000000000000, Key::X),
-            Chord::new(0b0001000000001000, Key::Y),
-            Chord::new(0b0001000000010000, Key::Comma),
-            Chord::new(0b0001000000100000, Key::Minus),
-            Chord::new(0b0001000001000000, Key::Quote),
-            Chord::new(0b0110000000000000, Key::W),
-            Chord::new(0b0010000000001000, Key::J),
-            Chord::new(0b0010000000010000, Key::K),
-            Chord::new(0b0010000000100000, Key::Period),
-            Chord::new(0b0010000001000000, Key::KpRightParen),
-            Chord::new(0b0100000000001000, Key::Q),
-            Chord::new(0b0100000000010000, Key::Z),
-            Chord::new(0b0100000000100000, Key::KpLeftParen),
-            Chord::new(0b0000000000011000, Key::H),
-            Chord::new(0b0000000000101000, Key::U),
-            Chord::new(0b0000000001001000, Key::M),
-            Chord::new(0b0000000000110000, Key::L),
-            Chord::new(0b0000000001100000, Key::Semicolon),
+        let chords = vec![
+            Chord::new(Finger::LI as u16 | Finger::LM as u16, Key::R),
+            Chord::new(Finger::LI as u16 | Finger::LR as u16, Key::C),
+            Chord::new(Finger::LI as u16 | Finger::LP as u16, Key::F),
+            Chord::new(Finger::LI as u16 | Finger::RI as u16, Key::B),
+            Chord::new(Finger::LI as u16 | Finger::RM as u16, Key::V),
+            Chord::new(Finger::LI as u16 | Finger::RR as u16, Key::G),
+            Chord::new(Finger::LI as u16 | Finger::RP as u16, Key::Backspace),
+            Chord::new(Finger::LM as u16 | Finger::LR as u16, Key::D),
+            Chord::new(Finger::LM as u16 | Finger::LP as u16, Key::X),
+            Chord::new(Finger::LM as u16 | Finger::RI as u16, Key::Y),
+            Chord::new(Finger::LM as u16 | Finger::RM as u16, Key::Comma),
+            Chord::new(Finger::LM as u16 | Finger::RR as u16, Key::Minus),
+            Chord::new(Finger::LM as u16 | Finger::RP as u16, Key::Quote),
+            Chord::new(Finger::LR as u16 | Finger::LP as u16, Key::W),
+            Chord::new(Finger::LR as u16 | Finger::RI as u16, Key::J),
+            Chord::new(Finger::LR as u16 | Finger::RM as u16, Key::K),
+            Chord::new(Finger::LR as u16 | Finger::RR as u16, Key::Period),
+            Chord::new(Finger::LR as u16 | Finger::RP as u16, Key::KpRightParen),
+            Chord::new(Finger::LP as u16 | Finger::RI as u16, Key::Q),
+            Chord::new(Finger::LP as u16 | Finger::RM as u16, Key::Z),
+            Chord::new(Finger::LP as u16 | Finger::RR as u16, Key::KpLeftParen),
+            Chord::new(Finger::RI as u16 | Finger::RM as u16, Key::H),
+            Chord::new(Finger::RI as u16 | Finger::RR as u16, Key::U),
+            Chord::new(Finger::RI as u16 | Finger::RP as u16, Key::M),
+            Chord::new(Finger::RM as u16 | Finger::RR as u16, Key::L),
+            Chord::new(Finger::RR as u16 | Finger::RP as u16, Key::Semicolon),
+            Chord::new(Finger::LP as u16, Key::A),
+            Chord::new(Finger::LR as u16, Key::S),
+            Chord::new(Finger::LM as u16, Key::E),
+            Chord::new(Finger::LI as u16, Key::T),
+            Chord::new(Finger::LU as u16, Key::Tab),
+            Chord::new(Finger::LL as u16, Key::Space),
+            Chord::new(Finger::RI as u16, Key::N),
+            Chord::new(Finger::RM as u16, Key::I),
+            Chord::new(Finger::RR as u16, Key::O),
+            Chord::new(Finger::RP as u16, Key::P),
+            Chord::new(Finger::RU as u16, Key::Esc),
+            Chord::new(Finger::RL as u16, Key::Space),
         ];
-        // reverse sort chords
-        chords.sort_by(|a, b| b.cmp(a));
 
         Layer {
             chords,
