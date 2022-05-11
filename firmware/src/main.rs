@@ -73,13 +73,13 @@ fn main() -> ! {
     let is_right = side_pin.is_low();
 
     let keys = [
-        pins.d5.into_pull_up_input().downgrade(),
-        pins.d4.into_pull_up_input().downgrade(),
-        pins.d6.into_pull_up_input().downgrade(),
-        pins.d7.into_pull_up_input().downgrade(),
-        pins.d16.into_pull_up_input().downgrade(),
-        pins.d14.into_pull_up_input().downgrade(),
         pins.d15.into_pull_up_input().downgrade(),
+        pins.d14.into_pull_up_input().downgrade(),
+        pins.d16.into_pull_up_input().downgrade(),
+        pins.d7.into_pull_up_input().downgrade(),
+        pins.d6.into_pull_up_input().downgrade(),
+        pins.d4.into_pull_up_input().downgrade(),
+        pins.d5.into_pull_up_input().downgrade(),
     ];
 
     let mut key_handler = KeyHandler::new();

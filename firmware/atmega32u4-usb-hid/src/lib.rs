@@ -82,10 +82,10 @@ impl UsbKeyboard {
         unsafe { usb_configured() != 0 }
     }
 
-    pub fn press_key(key: Key, modifier: Modifier) -> Result<(), ()> {
+    pub fn press_key(key: Key, modifier: u8) -> Result<(), ()> {
         unsafe {
             keyboard_keys[1..].fill(0); // clear all keys, except the first
-            match usb_keyboard_press(key as u8, modifier as u8) {
+            match usb_keyboard_press(key as u8, modifier) {
                 -1 => Err(()),
                 -2 => Err(()),
                 _ => Ok(()),

@@ -5,6 +5,26 @@ extern crate alloc;
 
 use core::str::FromStr;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(u16)]
+pub enum Finger {
+    LP = 0b0100000000000000,
+    LR = 0b0010000000000000,
+    LM = 0b0001000000000000,
+    LI = 0b0000100000000000,
+    LU = 0b0000010000000000,
+    LD = 0b0000001000000000,
+    LL = 0b0000000100000000,
+
+    RP = 0b0000000001000000,
+    RR = 0b0000000000100000,
+    RM = 0b0000000000010000,
+    RI = 0b0000000000001000,
+    RU = 0b0000000000000100,
+    RD = 0b0000000000000010,
+    RL = 0b0000000000000001,
+}
+
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum Modifier {
     None = 0,
@@ -338,6 +358,25 @@ impl FromStr for Key {
             "f22" => Ok(Key::F22),
             "f23" => Ok(Key::F23),
             "f24" => Ok(Key::F24),
+            "enter" => Ok(Key::Enter),
+            "esc" => Ok(Key::Esc),
+            "backspace" => Ok(Key::Backspace),
+            "tab" => Ok(Key::Tab),
+            "space" => Ok(Key::Space),
+            "minus" => Ok(Key::Minus),
+            "equal" => Ok(Key::Equal),
+            "leftbrace" => Ok(Key::LeftBrace),
+            "rightBrace" => Ok(Key::RightBrace),
+            "backslash" => Ok(Key::Backslash),
+            "number" => Ok(Key::Number),
+            "semicolon" => Ok(Key::Semicolon),
+            "quote" => Ok(Key::Quote),
+            "tilde" => Ok(Key::Tilde),
+            "comma" => Ok(Key::Comma),
+            "period" => Ok(Key::Period),
+            "dot" => Ok(Key::Period),
+            "slash" => Ok(Key::Slash),
+            "capslock" => Ok(Key::CapsLock),
             "open" => Ok(Key::Open),
             "help" => Ok(Key::Help),
             "props" => Ok(Key::Props),
@@ -367,6 +406,12 @@ impl FromStr for Key {
             "zenkakuhankaku" => Ok(Key::Zenkakuhankaku),
             "kpleftparen" => Ok(Key::KpLeftParen),
             "kprightparen" => Ok(Key::KpRightParen),
+            // TODO: make normal paren from these
+            "leftparen" => Ok(Key::KpLeftParen),
+            "rightparen" => Ok(Key::KpRightParen),
+            "left_paren" => Ok(Key::KpLeftParen),
+            "right_paren" => Ok(Key::KpRightParen),
+
             "leftctrl" => Ok(Key::LeftCtrl),
             "leftshift" => Ok(Key::LeftShift),
             "leftalt" => Ok(Key::LeftAlt),
