@@ -7,9 +7,23 @@ name = "arduino-hal"
 version = "0.1.0"
 source = "git+https://github.com/rahix/avr-hal?rev=5d757696e338104622a0f89c51020b718bf48b62#5d757696e338104622a0f89c51020b718bf48b62"
 dependencies = [
- "atmega-hal",
+ "atmega-hal 0.1.0 (git+https://github.com/rahix/avr-hal?rev=5d757696e338104622a0f89c51020b718bf48b62)",
  "avr-device",
- "avr-hal-generic",
+ "avr-hal-generic 0.1.0 (git+https://github.com/rahix/avr-hal?rev=5d757696e338104622a0f89c51020b718bf48b62)",
+ "cfg-if 1.0.0",
+ "embedded-hal",
+ "ufmt",
+ "void",
+]
+
+[[package]]
+name = "arduino-hal"
+version = "0.1.0"
+source = "git+https://github.com/rahix/avr-hal?rev=d0d2f243bd3e10b49f6a78d44839a6caa8be7d43#d0d2f243bd3e10b49f6a78d44839a6caa8be7d43"
+dependencies = [
+ "atmega-hal 0.1.0 (git+https://github.com/rahix/avr-hal?rev=d0d2f243bd3e10b49f6a78d44839a6caa8be7d43)",
+ "avr-device",
+ "avr-hal-generic 0.1.0 (git+https://github.com/rahix/avr-hal?rev=d0d2f243bd3e10b49f6a78d44839a6caa8be7d43)",
  "cfg-if 1.0.0",
  "embedded-hal",
  "ufmt",
@@ -22,14 +36,23 @@ version = "0.1.0"
 source = "git+https://github.com/rahix/avr-hal?rev=5d757696e338104622a0f89c51020b718bf48b62#5d757696e338104622a0f89c51020b718bf48b62"
 dependencies = [
  "avr-device",
- "avr-hal-generic",
+ "avr-hal-generic 0.1.0 (git+https://github.com/rahix/avr-hal?rev=5d757696e338104622a0f89c51020b718bf48b62)",
+]
+
+[[package]]
+name = "atmega-hal"
+version = "0.1.0"
+source = "git+https://github.com/rahix/avr-hal?rev=d0d2f243bd3e10b49f6a78d44839a6caa8be7d43#d0d2f243bd3e10b49f6a78d44839a6caa8be7d43"
+dependencies = [
+ "avr-device",
+ "avr-hal-generic 0.1.0 (git+https://github.com/rahix/avr-hal?rev=d0d2f243bd3e10b49f6a78d44839a6caa8be7d43)",
 ]
 
 [[package]]
 name = "atmega32u4-usb-hid"
 version = "0.1.0"
 dependencies = [
- "arduino-hal",
+ "arduino-hal 0.1.0 (git+https://github.com/rahix/avr-hal?rev=5d757696e338104622a0f89c51020b718bf48b62)",
  "avr-device",
  "cc",
  "defines",
@@ -37,21 +60,22 @@ dependencies = [
 
 [[package]]
 name = "avr-device"
-version = "0.3.2"
+version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4eb440a38bef22cef233b3eb46ef13e588eb8dcc70a1bdce3f00ebc6bf6b48dd"
+checksum = "4e7c1cef04ede70192080e05c3e1b5d97a2ab97ebde41145f7444600fc29dd5b"
 dependencies = [
  "avr-device-macros",
  "bare-metal",
  "cfg-if 0.1.10",
+ "rustversion",
  "vcell",
 ]
 
 [[package]]
 name = "avr-device-macros"
-version = "0.3.2"
+version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2c62997db86a92e73b68ab491d4379e1ddb12e94a9eb542180bc6b60f0e09f8b"
+checksum = "ab3dba70559ee3562230a75ce7839c30bfb257052930458cc920577c89b95eda"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -62,6 +86,21 @@ dependencies = [
 name = "avr-hal-generic"
 version = "0.1.0"
 source = "git+https://github.com/rahix/avr-hal?rev=5d757696e338104622a0f89c51020b718bf48b62#5d757696e338104622a0f89c51020b718bf48b62"
+dependencies = [
+ "avr-device",
+ "cfg-if 0.1.10",
+ "embedded-hal",
+ "nb 0.1.3",
+ "paste",
+ "rustversion",
+ "ufmt",
+ "void",
+]
+
+[[package]]
+name = "avr-hal-generic"
+version = "0.1.0"
+source = "git+https://github.com/rahix/avr-hal?rev=d0d2f243bd3e10b49f6a78d44839a6caa8be7d43#d0d2f243bd3e10b49f6a78d44839a6caa8be7d43"
 dependencies = [
  "avr-device",
  "cfg-if 0.1.10",
@@ -145,7 +184,7 @@ dependencies = [
 name = "firmware"
 version = "0.1.0"
 dependencies = [
- "arduino-hal",
+ "arduino-hal 0.1.0 (git+https://github.com/rahix/avr-hal?rev=d0d2f243bd3e10b49f6a78d44839a6caa8be7d43)",
  "atmega32u4-usb-hid",
  "avr-device",
  "avrd",
@@ -202,9 +241,9 @@ checksum = "dbf0c48bc1d91375ae5c3cd81e3722dff1abcf81a30960240640d223f59fe0e5"
 
 [[package]]
 name = "proc-macro2"
-version = "1.0.37"
+version = "1.0.38"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ec757218438d5fda206afc041538b2f6d889286160d649a86a24d37e1235afd1"
+checksum = "9027b48e9d4c9175fa2218adf3557f91c1137021739951d4932f5f8268ac48aa"
 dependencies = [
  "unicode-xid",
 ]
@@ -277,9 +316,9 @@ dependencies = [
 
 [[package]]
 name = "syn"
-version = "1.0.92"
+version = "1.0.93"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7ff7c592601f11445996a06f8ad0c27f094a58857c2f89e97974ab9235b92c52"
+checksum = "04066589568b72ec65f42d65a1a52436e954b168773148893c020269563decf2"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -326,9 +365,9 @@ checksum = "e87a2ed6b42ec5e28cc3b94c09982969e9227600b2e3dcbc1db927a84c06bd69"
 
 [[package]]
 name = "unicode-xid"
-version = "0.2.2"
+version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8ccb82d61f80a663efe1f787a51b16b5a51e3314d6ac365b08639f52387b33f3"
+checksum = "957e51f3646910546462e67d5f7599b9e4fb8acdd304b087a6494730f9eebf04"
 
 [[package]]
 name = "vcell"

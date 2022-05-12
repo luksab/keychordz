@@ -2,7 +2,7 @@
 name = "atmega32u4-usb-hid"
 version = "0.1.0"
 authors = ["luksab"]
-edition = "2018"
+edition = "2021"
 
 [lib]
 test = false

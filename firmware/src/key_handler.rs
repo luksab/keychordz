@@ -96,7 +96,16 @@ impl Layer {
 
         Layer {
             chords,
-            modifiers: vec![],
+            modifiers: vec![
+                ModifierKey {
+                    finger: Finger::LD,
+                    modifier: Modifier::Shift,
+                },
+                ModifierKey {
+                    finger: Finger::RD,
+                    modifier: Modifier::Shift,
+                },
+            ],
         }
     }
 }
