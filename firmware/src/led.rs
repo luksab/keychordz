@@ -13,7 +13,7 @@ enum Modes {
 }
 
 /// Led struct owning the Pin the LEDs are connected to
-/// 
+///
 /// Currently assumes Pin `PB5` and WS2812b LEDs
 pub struct Leds<const N: usize>
 where
@@ -73,6 +73,14 @@ where
         avr_device::asm::nop();
         avr_device::asm::nop();
         avr_device::asm::nop();
+        avr_device::asm::nop();
+        avr_device::asm::nop();
+        avr_device::asm::nop();
+        avr_device::asm::nop();
+        avr_device::asm::nop();
+        avr_device::asm::nop();
+        avr_device::asm::nop();
+        avr_device::asm::nop();
     }
 
     /// write a one to ws2812 LED strip
@@ -88,6 +96,18 @@ where
         avr_device::asm::nop();
         avr_device::asm::nop();
         pin.set_low();
+        avr_device::asm::nop();
+        avr_device::asm::nop();
+        avr_device::asm::nop();
+    }
+
+    #[inline(always)]
+    fn write_bit(pin: &mut Pin<Output, PB5>, val: u8, bit: u32) {
+        if val & (1 << bit) != 0 {
+            Self::write_one(pin);
+        } else {
+            Self::write_zero(pin);
+        }
     }
 
     /// write buffer to LEDs
@@ -101,19 +121,15 @@ where
         });
         avr_device::interrupt::free(|_cs| {
             for val in self.buffer.iter() {
-                for b in (0..8).rev() {
-                    let bit = (val >> b) & 0x1;
-
-                    if bit != 0 {
-                        // Send a ONE
-
-                        Self::write_one(&mut self.pin);
-                    } else {
-                        // Send a ZERO
-
-                        Self::write_zero(&mut self.pin);
-                    }
-                }
+                // inline reverse loop for performance
+                Self::write_bit(&mut self.pin, *val, 7);
+                Self::write_bit(&mut self.pin, *val, 6);
+                Self::write_bit(&mut self.pin, *val, 5);
+                Self::write_bit(&mut self.pin, *val, 4);
+                Self::write_bit(&mut self.pin, *val, 3);
+                Self::write_bit(&mut self.pin, *val, 2);
+                Self::write_bit(&mut self.pin, *val, 1);
+                Self::write_bit(&mut self.pin, *val, 0);
             }
         });
     }
