@@ -3,10 +3,7 @@ schematic/keychordz-cache.lib
 schematic/keychordz.sch-bak
 ESP32/.vscode/
 ESP32/build/
-schematic/keychordz-backups/
-schematicLeft/keychordz-backups/
-schematicRight/keychordz-backups/
-nRF53840Breakout/keychordz-backups/
+*/hardware-backups/
 keystats/target/
 qmk/parser/target/
 firmware/target/

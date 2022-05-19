@@ -1,4 +1,4 @@
-149089177
+11569266891229
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -57571,6 +57571,55 @@ LED_THT
 LED_VCCLite_5381H7_6.35x6.35mm
 Yellow 5381 Series LED VCCLite https://vcclite.com/wp-content/uploads/wpallimport/files/files/5381Series.pdf http://static.vcclite.com/pdf/Mounting%20Hole%20Pattern%202.pdf
 Yellow 5381 Series LED
+0
+2
+2
+Library
+CRYSTAL-SMD-5X3
+
+
+0
+4
+4
+Library
+EIA3216
+
+
+0
+2
+2
+Library
+LED_WS2812B_PLCC4_2.2x2.2mm
+https://cdn-shop.adafruit.com/datasheets/WS2812B.pdf
+LED RGB NeoPixel
+0
+4
+4
+Library
+ProMicro
+Pro Micro footprint
+promicro ProMicro
+0
+24
+24
+Library
+QFN-44-NOPAD_1_1-OUTFAKES
+
+
+0
+44
+44
+Library
+SS52400002
+SS-52400-002-2
+Connector
+0
+32
+32
+Library
+SW_PG1350
+Kailh "Choc" PG1350 keyswitch
+kailh,choc
 0
 2
 2
