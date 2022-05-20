@@ -7,3 +7,5 @@ ESP32/build/
 keystats/target/
 qmk/parser/target/
 firmware/target/
+hardware/_autosave*
+hardware/#auto_saved_files#
