@@ -9,3 +9,7 @@ qmk/parser/target/
 firmware/target/
 hardware/_autosave*
 hardware/#auto_saved_files#
+schematicLeft/keychordz-backups/
+schematicRight/keychordz-backups/
+proMicro/SparkFun_Pro_Micro-backups/
+hardware/gerber/
