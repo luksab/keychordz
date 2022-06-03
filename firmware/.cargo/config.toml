@@ -3,6 +3,10 @@ target = "atmega32u4.json"
 
 [target.'cfg(target_arch = "avr")']
 runner = "ravedude promicro"
+rustflags = [
+  # ..
+  "-C", "inline-threshold=275", # +
+]
 
 [unstable]
 build-std = ["core", "alloc"]

@@ -1,7 +1,6 @@
 //! from https://github.com/Rahix/avr-hal/blob/main/examples/arduino-uno/src/bin/uno-millis.rs
 
 use core::cell;
-use panic_halt as _;
 
 // Possible Values:
 //

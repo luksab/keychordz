@@ -1,19 +1,64 @@
-use alloc::vec::Vec;
+use alloc::{string::String, vec::Vec};
 use atmega32u4_usb_hid::{Finger, Key, Modifier, UsbKeyboard};
+use serde::{Deserialize, Serialize};
+use ufmt::derive::uDebug;
 
 use crate::key_state::KeyState;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct UString(pub String);
+impl ufmt::uWrite for UString {
+    type Error = core::convert::Infallible;
+
+    fn write_str(&mut self, s: &str) -> Result<(), core::convert::Infallible> {
+        self.0.push_str(s);
+        Ok(())
+    }
+}
+impl ufmt::uDisplay for UString {
+    fn fmt<W>(&self, f: &mut ufmt::Formatter<'_, W>) -> Result<(), W::Error>
+    where
+        W: ufmt::uWrite + ?Sized,
+    {
+        <str as ufmt::uDisplay>::fmt(&self.0, f)
+    }
+}
+impl ufmt::uDebug for UString {
+    fn fmt<W>(&self, f: &mut ufmt::Formatter<'_, W>) -> Result<(), W::Error>
+    where
+        W: ufmt::uWrite + ?Sized,
+    {
+        <str as ufmt::uDisplay>::fmt(&self.0, f)
+    }
+}
+
+#[derive(uDebug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+enum RGBAction {
+    None,
+    BrightnessSet(u8),
+    BrightnessAdd(i8),
+    Toggle,
+}
+
+#[derive(uDebug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+enum Action {
+    Key(Key),
+    Word(UString),
+    Layer(u8),
+    RGBAction(RGBAction),
+}
+
+#[derive(uDebug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 struct Chord {
     trigger: u16,
-    key: Key,
+    key: Action,
 }
 
 impl Chord {
     /// Create a new chord.
     ///
     /// triggger are the Fingers bitwise ORed together.
-    pub fn new(trigger: u16, key: Key) -> Self {
+    pub fn new(trigger: u16, key: Action) -> Self {
         Chord { trigger, key }
     }
 
@@ -40,58 +85,96 @@ impl PartialOrd for Chord {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(uDebug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 struct ModifierKey {
     finger: Finger,
     modifier: Modifier,
 }
 
-struct Layer {
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Layer {
     chords: Vec<Chord>,
     modifiers: Vec<ModifierKey>,
+}
+
+impl ufmt::uDebug for Layer {
+    fn fmt<W>(&self, f: &mut ufmt::Formatter<'_, W>) -> Result<(), W::Error>
+    where
+        W: ufmt::uWrite + ?Sized,
+    {
+        f.debug_list()?.entries(self.chords.iter())?.finish()?;
+
+        f.debug_list()?.entries(self.modifiers.iter())?.finish()?;
+
+        Ok(())
+    }
 }
 
 impl Layer {
     pub fn default() -> Self {
         let chords = vec![
-            Chord::new(Finger::LI as u16 | Finger::LM as u16, Key::R),
-            Chord::new(Finger::LI as u16 | Finger::LR as u16, Key::C),
-            Chord::new(Finger::LI as u16 | Finger::LP as u16, Key::F),
-            Chord::new(Finger::LI as u16 | Finger::RI as u16, Key::B),
-            Chord::new(Finger::LI as u16 | Finger::RM as u16, Key::V),
-            Chord::new(Finger::LI as u16 | Finger::RR as u16, Key::G),
-            Chord::new(Finger::LI as u16 | Finger::RP as u16, Key::Backspace),
-            Chord::new(Finger::LM as u16 | Finger::LR as u16, Key::D),
-            Chord::new(Finger::LM as u16 | Finger::LP as u16, Key::X),
-            Chord::new(Finger::LM as u16 | Finger::RI as u16, Key::Y),
-            Chord::new(Finger::LM as u16 | Finger::RM as u16, Key::Comma),
-            Chord::new(Finger::LM as u16 | Finger::RR as u16, Key::Minus),
-            Chord::new(Finger::LM as u16 | Finger::RP as u16, Key::Quote),
-            Chord::new(Finger::LR as u16 | Finger::LP as u16, Key::W),
-            Chord::new(Finger::LR as u16 | Finger::RI as u16, Key::J),
-            Chord::new(Finger::LR as u16 | Finger::RM as u16, Key::K),
-            Chord::new(Finger::LR as u16 | Finger::RR as u16, Key::Period),
-            Chord::new(Finger::LR as u16 | Finger::RP as u16, Key::KpRightParen),
-            Chord::new(Finger::LP as u16 | Finger::RI as u16, Key::Q),
-            Chord::new(Finger::LP as u16 | Finger::RM as u16, Key::Z),
-            Chord::new(Finger::LP as u16 | Finger::RR as u16, Key::KpLeftParen),
-            Chord::new(Finger::RI as u16 | Finger::RM as u16, Key::H),
-            Chord::new(Finger::RI as u16 | Finger::RR as u16, Key::U),
-            Chord::new(Finger::RI as u16 | Finger::RP as u16, Key::M),
-            Chord::new(Finger::RM as u16 | Finger::RR as u16, Key::L),
-            Chord::new(Finger::RR as u16 | Finger::RP as u16, Key::Semicolon),
-            Chord::new(Finger::LP as u16, Key::A),
-            Chord::new(Finger::LR as u16, Key::S),
-            Chord::new(Finger::LM as u16, Key::E),
-            Chord::new(Finger::LI as u16, Key::T),
-            Chord::new(Finger::LU as u16, Key::Tab),
-            Chord::new(Finger::LL as u16, Key::Space),
-            Chord::new(Finger::RI as u16, Key::N),
-            Chord::new(Finger::RM as u16, Key::I),
-            Chord::new(Finger::RR as u16, Key::O),
-            Chord::new(Finger::RP as u16, Key::P),
-            Chord::new(Finger::RU as u16, Key::Esc),
-            Chord::new(Finger::RL as u16, Key::Space),
+            Chord::new(Finger::LI as u16 | Finger::LM as u16, Action::Key(Key::R)),
+            Chord::new(Finger::LI as u16 | Finger::LR as u16, Action::Key(Key::C)),
+            Chord::new(Finger::LI as u16 | Finger::LP as u16, Action::Key(Key::F)),
+            Chord::new(Finger::LI as u16 | Finger::RI as u16, Action::Key(Key::B)),
+            Chord::new(Finger::LI as u16 | Finger::RM as u16, Action::Key(Key::V)),
+            Chord::new(Finger::LI as u16 | Finger::RR as u16, Action::Key(Key::G)),
+            Chord::new(
+                Finger::LI as u16 | Finger::RP as u16,
+                Action::Key(Key::Backspace),
+            ),
+            Chord::new(Finger::LM as u16 | Finger::LR as u16, Action::Key(Key::D)),
+            Chord::new(Finger::LM as u16 | Finger::LP as u16, Action::Key(Key::X)),
+            Chord::new(Finger::LM as u16 | Finger::RI as u16, Action::Key(Key::Y)),
+            Chord::new(
+                Finger::LM as u16 | Finger::RM as u16,
+                Action::Key(Key::Comma),
+            ),
+            Chord::new(
+                Finger::LM as u16 | Finger::RR as u16,
+                Action::Key(Key::Minus),
+            ),
+            Chord::new(
+                Finger::LM as u16 | Finger::RP as u16,
+                Action::Key(Key::Quote),
+            ),
+            Chord::new(Finger::LR as u16 | Finger::LP as u16, Action::Key(Key::W)),
+            Chord::new(Finger::LR as u16 | Finger::RI as u16, Action::Key(Key::J)),
+            Chord::new(Finger::LR as u16 | Finger::RM as u16, Action::Key(Key::K)),
+            Chord::new(
+                Finger::LR as u16 | Finger::RR as u16,
+                Action::Key(Key::Period),
+            ),
+            Chord::new(
+                Finger::LR as u16 | Finger::RP as u16,
+                Action::Key(Key::KpRightParen),
+            ),
+            Chord::new(Finger::LP as u16 | Finger::RI as u16, Action::Key(Key::Q)),
+            Chord::new(Finger::LP as u16 | Finger::RM as u16, Action::Key(Key::Z)),
+            Chord::new(
+                Finger::LP as u16 | Finger::RR as u16,
+                Action::Key(Key::KpLeftParen),
+            ),
+            Chord::new(Finger::RI as u16 | Finger::RM as u16, Action::Key(Key::H)),
+            Chord::new(Finger::RI as u16 | Finger::RR as u16, Action::Key(Key::U)),
+            Chord::new(Finger::RI as u16 | Finger::RP as u16, Action::Key(Key::M)),
+            Chord::new(Finger::RM as u16 | Finger::RR as u16, Action::Key(Key::L)),
+            Chord::new(
+                Finger::RR as u16 | Finger::RP as u16,
+                Action::Key(Key::Semicolon),
+            ),
+            Chord::new(Finger::LP as u16, Action::Key(Key::A)),
+            Chord::new(Finger::LR as u16, Action::Key(Key::S)),
+            Chord::new(Finger::LM as u16, Action::Key(Key::E)),
+            Chord::new(Finger::LI as u16, Action::Key(Key::T)),
+            Chord::new(Finger::LU as u16, Action::Key(Key::Tab)),
+            Chord::new(Finger::LL as u16, Action::Key(Key::Space)),
+            Chord::new(Finger::RI as u16, Action::Key(Key::N)),
+            Chord::new(Finger::RM as u16, Action::Key(Key::I)),
+            Chord::new(Finger::RR as u16, Action::Key(Key::O)),
+            Chord::new(Finger::RP as u16, Action::Key(Key::P)),
+            Chord::new(Finger::RU as u16, Action::Key(Key::Esc)),
+            Chord::new(Finger::RL as u16, Action::Key(Key::Space)),
         ];
 
         Layer {
@@ -108,6 +191,13 @@ impl Layer {
             ],
         }
     }
+
+    pub fn empty() -> Self {
+        Layer {
+            chords: vec![],
+            modifiers: vec![],
+        }
+    }
 }
 
 /// chords trigger on release of any key in the chord
@@ -121,9 +211,9 @@ pub struct KeyHandler {
 }
 
 impl KeyHandler {
-    pub fn new() -> Self {
+    pub fn new(layers: Vec<Layer>) -> Self {
         KeyHandler {
-            layers: vec![Layer::default()],
+            layers,
             active_layer: 0,
             state: KeyState::new(),
             should_trigger: false,
@@ -145,7 +235,12 @@ impl KeyHandler {
             for chord in self.layers[self.active_layer].chords.iter() {
                 if chord.triggers(self.state.last_state, self.state.just_released) {
                     // TODO: handle error
-                    let _ = UsbKeyboard::press_key(chord.key, modifier);
+                    match chord.key {
+                        Action::Key(key) => {
+                            let _ = UsbKeyboard::press_key(key, modifier);
+                        }
+                        _ => {}
+                    }
                     // only trigger for the longest chord
                     // chors are sorted by trigger length
                     break;

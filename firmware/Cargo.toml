@@ -15,15 +15,17 @@ panic = "abort"
 codegen-units = 1
 # debug = true # 60 bytes saved
 lto = true
-opt-level = "s"
+opt-level = "z"
 
 [dependencies]
 avrd = "1.0.0"
-panic-halt = "0.2.0"
 atmega32u4-usb-hid = { path = "./atmega32u4-usb-hid" }
 embedded-hal = "0.2.7"
 ufmt = "0.1"
 smart-leds = "0.3"
+
+postcard = "0.7.3"
+serde = { version = "1.0", default-features = false, features = ["alloc", "derive"] }
 
 [dependencies.avr-device]
 version = "0.3.2"
