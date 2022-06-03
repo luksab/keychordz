@@ -5,7 +5,11 @@ extern crate alloc;
 
 use core::str::FromStr;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+use alloc::string::ToString;
+use serde::{Deserialize, Serialize};
+use ufmt::{derive::uDebug, uDebug};
+
+#[derive(uDebug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[repr(u16)]
 pub enum Finger {
     LP = 0b0100000000000000,
@@ -25,7 +29,7 @@ pub enum Finger {
     RL = 0b0000000000000001,
 }
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(uDebug, Copy, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[repr(u8)]
 pub enum Modifier {
     None = 0,
@@ -58,7 +62,7 @@ impl FromStr for Modifier {
     }
 }
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[repr(u8)]
 pub enum Key {
     None = 0,
@@ -282,6 +286,23 @@ pub enum Key {
     RightShift = 0xe5, // Keyboard Right Shift
     RightAlt = 0xe6,   // Keyboard Right Alt
     RightMeta = 0xe7,  // Keyboard Right GUI
+}
+
+impl ufmt::uDisplay for Key {
+    fn fmt<W>(&self, f: &mut ufmt::Formatter<'_, W>) -> Result<(), W::Error>
+    where
+        W: ufmt::uWrite + ?Sized,
+    {
+        f.write_str(&(*self as u8).to_string())
+    }
+}
+impl ufmt::uDebug for Key {
+    fn fmt<W>(&self, f: &mut ufmt::Formatter<'_, W>) -> Result<(), W::Error>
+    where
+        W: ufmt::uWrite + ?Sized,
+    {
+        f.write_str(&(*self as u8).to_string())
+    }
 }
 
 impl FromStr for Key {

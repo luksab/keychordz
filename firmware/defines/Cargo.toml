@@ -4,4 +4,8 @@ version = "0.1.0"
 authors = ["luksab <lukas@sabatschus.de>"]
 edition = "2021"
 
+[dependencies]
+serde = { version = "1.0", default-features = false }
+ufmt = "0.1"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
