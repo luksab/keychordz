@@ -33,8 +33,15 @@ use panic_halt as _;
 fn main() -> ! {
     let dp = atmega32u4::Peripherals::take().unwrap();
     let pins = arduino_hal::pins!(dp);
+    let mut eeprom = eeprom::EEPROMHal::new(dp.EEPROM);
+
+    let layer = Layer::default();
+    eeprom.write_struct(0, &layer);
+
     millis::millis_init(dp.TC0);
-    let mut serial = arduino_hal::default_serial!(dp, pins, 115200);
+
+
+    let layers = eeprom.read_struct(0);
 
     ufmt::uwriteln!(&mut serial, "Hello!").void_unwrap();
 
@@ -80,7 +87,7 @@ fn main() -> ! {
         pins.d5.into_pull_up_input().downgrade(),
     ];
 
-    let mut key_handler = KeyHandler::new();
+    let mut key_handler = KeyHandler::new(vec![layers]);
 
     let mut key_prot = KeyProt::new(d3, d2);
 
