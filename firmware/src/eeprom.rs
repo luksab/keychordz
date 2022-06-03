@@ -1,5 +1,4 @@
 use core::mem::size_of;
-use postcard::{from_bytes, to_vec};
 
 use arduino_hal::pac::EEPROM;
 use serde::{de::DeserializeOwned, Serialize};
@@ -7,7 +6,7 @@ pub struct EEPROMHal {
     eeprom_registers: EEPROM,
 }
 
-const MAX_STRUCT_SIZE: usize = 64;
+const MAX_STRUCT_SIZE: usize = 256;
 
 impl EEPROMHal {
     pub fn new(eeprom_registers: EEPROM) -> EEPROMHal {
@@ -94,14 +93,20 @@ impl EEPROMHal {
         T: Serialize,
     {
         let mut buffer = [0u8; MAX_STRUCT_SIZE];
-        match postcard::to_slice(data, &mut buffer) {
-            Ok(len) => {
-                crate::println!("Wrote {} bytes", len);
+        let buffer = match postcard::to_slice(data, &mut buffer) {
+            Ok(buffer) => {
+                crate::println!("Wrote {} bytes", buffer.len());
+                buffer
             }
-            Err(err) => {
-                crate::println!("Err: {:?}", err);
+            Err(postcard::Error::SerializeBufferFull) => {
+                crate::println!("MAX_STRUCT_SIZE not large enough");
+                loop {}
             }
-        }
+            Err(_err) => {
+                crate::println!("Error writing struct");
+                loop {}
+            }
+        };
         self.write_buffer(address, &buffer);
         buffer.len() as usize
     }
